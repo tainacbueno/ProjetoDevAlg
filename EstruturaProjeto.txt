@@ -1,0 +1,15 @@
+•Quando a carteira abrir, pedir o CPF
+   -Se já existir um arquivo com o nº do CPF, abre e fala "Bem-vindo, [nome]"
+
+   -Se não existir, cadastrar:
+	•Cadastrar por CPF (arquivo contendo todas as transações)
+      		-No arquivo "geral":
+         	     -linha 1: nome da pessoa
+         	     -linha 2: total (aumenta ou diminui de acordo com a transação) - verificar o valor ficará negativo
+
+•Em Transações:
+	•Depositar:
+		-Opção de colocar dia, mês e ano
+		-Colocar valor do depósito
+		-Selecionar na caixa de opções qual é o tipo de movimentação (moradia, transporte...)
+                -Adicionar as infos. no arquivo do tipo escolhido (dia mês ano (s/d) valor)
