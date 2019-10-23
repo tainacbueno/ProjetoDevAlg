@@ -3,3 +3,4 @@
 
 Caso dê tempo:
 -Botão trocar usuário
+-Plotar gráfico
