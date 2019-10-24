@@ -1,15 +1,29 @@
+Arquivos:
+-Um arquivo de "cadastro"
+-Uma pasta contendo os arquivos das descrições
+
 •Quando a carteira abrir, pedir o CPF
    -Se já existir um arquivo com o nº do CPF, abre e fala "Bem-vindo, [nome]"
 
    -Se não existir, cadastrar:
-	•Cadastrar por CPF (arquivo contendo todas as transações)
-      		-No arquivo "geral":
+	•Cadastrar por CPF 
+      		-No arquivo de "cadastro":
          	     -linha 1: nome da pessoa
-         	     -linha 2: total (aumenta ou diminui de acordo com a transação) - verificar o valor ficará negativo
+         	     -linha 2: total (aumenta ou diminui de acordo com a transação)
+   •Adicional 1: exibir o "saldo"; quanto tem na carteira
+	•Adicional 2: Caso o saldo seja maior que R$10.000, sugerir colocar no banco (ou embaixo do colchão)
 
 •Em Transações:
-	•Depositar:
+	•Depositar/Sacar:
 		-Opção de colocar dia, mês e ano
-		-Colocar valor do depósito
-		-Selecionar na caixa de opções qual é o tipo de movimentação (moradia, transporte...)
-                -Adicionar as infos. no arquivo do tipo escolhido (dia mês ano (s/d) valor)
+		-Colocar valor da movimentação
+		-Selecionar na caixa de opções a descrição (moradia, transporte...)
+		-Se a operação for de Saque, verificar se o saldo fica negativo
+			-Caso sim, informar o usuário de que ele não tem esse valor disponível
+                -Adicionar as infos. no arquivo do tipo escolhido (dia mês ano (d/s) valor)
+		-Atualizar no arq. cadastro
+
+•Em Relatórios:
+	-Diferentes tipos de movimentação (descrições); cada uma abre o respectivo arquivo
+	•Adicional 3: Escolher o período (últimos 30, 60, 90 dias... último ano)
+		*Formatar a data (colocar o /), trocar d/s por +/- e colocar R$
