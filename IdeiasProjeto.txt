@@ -7,3 +7,4 @@ Caso dê tempo:
 -Botão trocar usuário
 -Plotar gráfico
 -Pedir para o usuário informar o mês inicial e final que ele deseja consultar
+-Estilizar
