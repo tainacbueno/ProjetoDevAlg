@@ -1,6 +1,7 @@
 -Ver oq fazer com o botão "Sair"
 -Aumentar tamanho "barra de tarefas"
 -Mudar termos (depositar/sacar)
+-Mudar função contaDigitos (usar COUNT)
 
 
 Caso dê tempo:

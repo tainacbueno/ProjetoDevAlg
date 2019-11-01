@@ -17,10 +17,11 @@ Arquivos:
 	•Depositar/Sacar:
 		-Opção de colocar dia, mês e ano
 		-Colocar valor da movimentação
-		-Selecionar na caixa de opções a descrição (moradia, transporte...)
+		-Selecionar na caixa de opções o tipo (moradia, transporte...)
+		-Colocar a descrição
 		-Se a operação for de Saque, verificar se o saldo fica negativo
 			-Caso sim, informar o usuário de que ele não tem esse valor disponível
-                -Adicionar as infos. no arquivo do tipo escolhido (dia mês ano (d/s) valor)
+                -Adicionar as infos. no arquivo do tipo escolhido (dia mês ano (d/s) valor descrição)
 		-Atualizar no arq. cadastro
 
 •Em Relatórios:
