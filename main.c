@@ -3,6 +3,8 @@
 #include <iup.h>
 #include <sys/stat.h>
 
+#define MAX 100
+
 int globalVar = 0;
 char pessoaAtual[23];
 
@@ -10,6 +12,28 @@ struct variaveis{
     Ihandle *dlg, *label, *vbox, *hbox;
     Ihandle *btn, *button_exit;
 }IupVar;
+struct info{
+    int dia, mes, ano;
+    float valor;
+    char descricao[MAX];
+};
+
+/*/////funções/////*/
+int botao_exit(Ihandle *self);
+void aviso(char titulo[], char msgm[]);
+int existeArq(char caminho[]);
+void moradia(struct info dados);
+void pegaDeposito(Ihandle *self);
+void deposita(int argc, char **argv);
+void saque(int argc, char **argv);
+void pegaNome(char nome[255]);
+int TelaInicial(int argc, char **argv);
+int analisaCadastro(Ihandle *entrada);
+void CadastraUsuario(int argc, char **argv);
+int contaDigitos(unsigned long long int valor);
+int analisaCPF(Ihandle *inserecpf);
+void pedeCPF(int argc, char **argv);
+/*/////funções/////*/
 
 int botao_exit(Ihandle *self){
     IupVar.dlg = IupMessageDlg();
@@ -43,57 +67,81 @@ void aviso(char titulo[], char msgm[]){
 }
 
 int existeArq(char caminho[]){
-    printf("%s\n", caminho);
     if(!fopen(caminho, "r"))
         //n existe
         return 0;
     return 1;
 }
 
-void moradia(){
+void moradia(struct info dados){
     int verif;
     FILE *file;
     char caminho[35];
 
     strcpy(caminho, pessoaAtual);
-    strcat(caminho, "/geral.txt");
+    strcat(caminho, "/moradia.txt");
 
-    //printf("%s\n", caminho);
+    printf("%s\n", caminho);
 
     verif = existeArq(caminho);
 
-    if (verif == 1)
-        printf("existe\n");
-    else
-        printf("n existe\n");
+    //falta colocar a descrição
+    if (verif == 1){
+        file = fopen(caminho, "a");
+        fprintf(file, "%d %d %d d %.2lf\n", dados.dia, dados.mes, dados.ano, dados.valor);
+        fclose(file);
+        printf("existe e deu certo\n");
+    }
+    else {
+        file = fopen(caminho, "w");
+        fprintf(file, "%d %d %d d %lf\n", dados.dia, dados.mes, dados.ano, dados.valor);
+        fclose(file);
+        printf("n existe e deu certo\n");
+    }
 }
 
 void pegaDeposito(Ihandle *self){
     //printf("%s\n", pessoaAtual);
     Ihandle *pegaDia, *pegaMes, *pegaAno, *pegaQt;
+    Ihandle *pegaOpcao;
+
+    struct info dados;
 
     pegaDia = IupGetDialogChild(self, "dia");
     pegaMes = IupGetDialogChild(self, "mes");
     pegaAno = IupGetDialogChild(self, "ano");
     pegaQt = IupGetDialogChild(self, "quantia");
+    pegaOpcao = IupGetDialogChild(self, "lista");
+    //pegar descricao
 
-    int dia = IupGetInt(pegaDia, "VALUE");
-    int mes = IupGetInt(pegaMes, "VALUE");
-    int ano = IupGetInt(pegaAno, "VALUE");
-    double dinheiro = IupGetDouble(pegaQt, "VALUE");
+    dados.dia = IupGetInt(pegaDia, "VALUE");
+    dados.mes = IupGetInt(pegaMes, "VALUE");
+    dados.ano = IupGetInt(pegaAno, "VALUE");
+    dados.valor = IupGetDouble(pegaQt, "VALUE");
+    int categoria = IupGetInt(pegaOpcao, "VALUE");
 
-    /*if(dia == 0 || mes == 0 || ano == 0){
-
+    if(dados.dia < 1 || dados.dia > 31)
+        aviso("Erro", "Dia inválido. Tente novamente.");
+    else if(dados.mes < 1 || dados.mes > 12)
+        aviso("Erro", "Mês inválido. Tente novamente.");
+    else if(dados.ano < 0)
+        aviso("Erro", "Ano inválido. Tente novamente.");
+    else {
+        if (categoria == 1)
+            moradia(dados);
+        /*else if (categoria == 2)
+            estudo();
+        else if (categoria == 3)
+            transporte();
+        else if (categoria == 4)
+            alimentacao();
+        else if (categoria == 5)
+            trabalho();*/
+        else
+            aviso("Erro", "Algo inesperado aconteceu. Contate o suporte.");
+        aviso("Sucesso", "Depósito realizado!");
+        //IupClose();
     }
-
-    printf("%d/%d/%d      %lf", dia, mes, ano, dinheiro);*/
-
-    //IupSetStrf(pegaDia, "VALUE", "%d", dia);
-
-    //Aviso
-    aviso("Sucesso", "Depósito realizado!");
-
-    moradia();
 }
 
 void deposita(int argc, char **argv){
@@ -117,7 +165,7 @@ void deposita(int argc, char **argv){
     mesL = IupLabel("Mês: ");
     anoL = IupLabel("Ano: ");
 
-    movL = IupLabel("Valor a ser depositado:   R$");
+    movL = IupLabel("Valor a ser depositado (caso o valor seja decimal, use o ponto):   R$");
     IupSetAttribute(movL, "FONTSIZE", "10");
 
     tipo = IupLabel("Categoria: ");
