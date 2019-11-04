@@ -28,6 +28,14 @@ struct movimenta{
     Ihandle *movT, *movL;
     Ihandle *hbox2, *hbox3, *hbox4, *list;
 }varMov;
+struct guardaChar{
+    char dia[100];
+    char mes[100];
+    char ano[100];
+    char tipo;
+    char valor[100];
+    char desc[100];
+}dados;
 
 /*/////funções/////*/
 int botao_exit(Ihandle *self);
@@ -88,11 +96,11 @@ int existeArq(char caminho[]){
 void atualizaGeral(int num, double valor){
     if(num == 0) {
         saldo += valor;
-        printf("%lf\n", saldo);
+        //printf("%lf\n", saldo);
     }
     if(num == 1) {
         saldo -= valor;
-        printf("%lf\n", saldo);
+        //printf("%lf\n", saldo);
     }
 
     char caminho[maxCaminho];
@@ -104,9 +112,41 @@ void atualizaGeral(int num, double valor){
     fclose(arq);
 }
 
+void imprimeRelatorio(struct guardaChar guarda[1000], int i){
+    Ihandle *texto = IupText(NULL);
+    IupSetAttribute(texto, "MULTILINE", "YES");
+    IupSetAttribute(texto, "READONLY", "YES");
+    IupSetAttribute(texto, "SIZE", "200x200");
+
+    IupVar.vbox = IupVbox(texto, NULL);
+
+    IupVar.dlg = IupDialog(IupVar.vbox);
+
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    int j;
+
+    char letra[9];
+
+    for (j = 0; j < i; ++j) {
+        if (guarda[j].tipo == 'd')
+            strcpy(letra, "depositou");
+        else
+            strcpy(letra, "sacou");
+
+        char buf[1000];
+        snprintf(buf, sizeof buf, "Em %s/%s/%s %s R$%s para %s\n", guarda[j].dia, guarda[j].mes, guarda[j].ano, letra, guarda[j].valor,
+                 guarda[j].desc);
+        IupSetAttribute(texto, "INSERT", buf);
+    }
+    IupMainLoop();
+}
+
 int relatorioMoradia(){
-    struct info dados;
+    struct guardaChar guarda[1000];
+    struct guardaChar var;
     char caminho[maxCaminho];
+    int i = 0;
 
     strcpy(caminho, pessoaAtual);
     strcat(caminho, "/moradia.txt");
@@ -115,11 +155,15 @@ int relatorioMoradia(){
 
     if(fopen(caminho, "r")){
         arq = fopen(caminho, "r");
-        while (!feof(arq))
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
         {
-            fscanf(arq,"%d %d %d %c %lf %s", &(dados.dia), &(dados.mes), &(dados.ano), &(dados.transacao), &(dados.valor), dados.desc);
-            //printf("%d %d %d %c %.2lf %s", i, i2, i3, op, valor, texto);
+            guarda[i] = dados;
+            i++;
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
+        fclose(arq);
+        imprimeRelatorio(guarda, i);
     }
     else{
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
@@ -213,7 +257,7 @@ int pegaDados(Ihandle *self){
         aviso("Erro", "Descrição muito grande. Tente novamente.");
     else if(categoria == 0)
         aviso("Erro", "Por favor selecione uma categoria.");
-    else if (categoria == 6 && strlen(dados.desc) == 0)
+    else if (strlen(dados.desc) == 0)
         aviso("Erro", "Por favor escreva uma descrição.");
     else {
         if (deposita_saque == 0)
@@ -223,7 +267,6 @@ int pegaDados(Ihandle *self){
         aviso("Sucesso", "Operação realizada!");
         //IupClose();
     }
-    return IUP_CLOSE;
 }
 
 int deposita(int argc, char **argv){
