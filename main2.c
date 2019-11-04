@@ -3,49 +3,433 @@
 #include <iup.h>
 #include <sys/stat.h>
 
+#define MAX 100
+
 int globalVar = 0;
-char pessoaAtual[50];
+//deposita = 0, saque = 1
+int deposita_saque = 0;
+char pessoaAtual[23];
+
+struct variaveis{
+    Ihandle *dlg, *label, *vbox, *hbox;
+    Ihandle *btn, *button_exit;
+}IupVar;
+struct info{
+    int dia, mes, ano;
+    float valor;
+    char *desc;
+};
+struct movimenta{
+    Ihandle *diaT, *diaL, *mesT, *mesL, *anoT, *anoL, *tipo, *descricaoT, *descricaoL;
+    Ihandle *movT, *movL;
+    Ihandle *hbox2, *hbox3, *hbox4, *list;
+}varMov;
+
+/*/////funções/////*/
+int botao_exit(Ihandle *self);
+void aviso(char titulo[], char msgm[]);
+int existeArq(char caminho[]);
+void moradia(struct info dados);
+void pegaDeposito(Ihandle *self);
+void deposita(int argc, char **argv);
+void saque(int argc, char **argv);
+void pegaNome(char nome[255]);
+int TelaInicial(int argc, char **argv);
+int analisaCadastro(Ihandle *entrada);
+void CadastraUsuario(int argc, char **argv);
+int contaDigitos(unsigned long long int valor);
+int analisaCPF(Ihandle *inserecpf);
+void pedeCPF(int argc, char **argv);
+/*/////funções/////*/
+
+void atualizaGeral(){
+    char caminho[34];
+    char var[255];
+    double val;
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/geral.txt");
+
+    FILE *arq = fopen(caminho, "r");
+    fscanf(arq, "%*s\n%lf", &val);
+    fclose(arq);
+
+    printf("%lf", val);
+}
+
 
 int botao_exit(Ihandle *self){
-    Ihandle* dlg = IupMessageDlg();
+    IupVar.dlg = IupMessageDlg();
 
-    IupSetAttribute(dlg, "DIALOGTYPE", "WARNING");
-    IupSetAttribute(dlg, "TITLE", "IupMessageDlg Test");
-    IupSetAttribute(dlg, "BUTTONS", "OKCANCEL");
-    IupSetAttribute(dlg, "VALUE", "Tem certeza que desaja sair?");
+    IupSetAttribute(IupVar.dlg, "DIALOGTYPE", "WARNING");
+    //IupSetAttribute(dlg, "TITLE", "Saída");
+    IupSetAttribute(IupVar.dlg, "BUTTONS", "OKCANCEL");
+    IupSetAttribute(IupVar.dlg, "VALUE", "Tem certeza que desaja sair?");
 
-    IupPopup(dlg, IUP_CURRENT, IUP_CURRENT);
-    char *op = IupGetAttribute(dlg, "BUTTONRESPONSE");
+    IupPopup(IupVar.dlg, IUP_CURRENT, IUP_CURRENT);
+
+    char *op = IupGetAttribute(IupVar.dlg, "BUTTONRESPONSE");
 
     if(*op == '1'){
         return IUP_CLOSE;
     }
 
-    IupDestroy(dlg);
+    IupDestroy(IupVar.dlg);
 }
 
-double deposita(){
-    printf("Depositou\n");
-    return 3;
-}
-double saque(){
-    printf("Saque\n");
-    return 3;
+void aviso(char titulo[], char msgm[]){
+    IupVar.dlg = IupMessageDlg();
+
+    IupSetAttribute(IupVar.dlg, "DIALOGTYPE", "WARNING");
+    IupSetAttribute(IupVar.dlg, "TITLE", titulo);
+    IupSetAttribute(IupVar.dlg, "BUTTONS", "OK");
+    IupSetAttribute(IupVar.dlg, "VALUE", msgm);
+
+    IupPopup(IupVar.dlg, IUP_CURRENT, IUP_CURRENT);
+    IupDestroy(IupVar.dlg);
 }
 
-void pegaNome(char nome[100]){
+int existeArq(char caminho[]){
+    if(!fopen(caminho, "r"))
+        //n existe
+        return 0;
+    return 1;
+}
+
+void escreveArquivo(struct info dados, int op, int num){
+    int verif;
+    FILE *file;
+    char caminho[39];
+
+    strcpy(caminho, pessoaAtual);
+
+    if(op == 1)
+        strcat(caminho, "/moradia.txt");
+    else if(op == 2)
+        strcat(caminho, "/estudo.txt");
+    else if(op == 3)
+        strcat(caminho, "/transporte.txt");
+    else if(op == 4)
+        strcat(caminho, "/alimentacao.txt");
+    else if(op == 5)
+        strcat(caminho, "/trabalho.txt");
+    else if(op == 6)
+        strcat(caminho, "/outros.txt");
+
+    //printf("%s\n", caminho);
+
+    verif = existeArq(caminho);
+
+    if (verif == 1){
+        file = fopen(caminho, "a");
+        if(num == 0)
+            fprintf(file, "%d %d %d d %.2lf %s\n", dados.dia, dados.mes, dados.ano, dados.valor, dados.desc);
+        else
+            fprintf(file, "%d %d %d s %.2lf %s\n", dados.dia, dados.mes, dados.ano, dados.valor, dados.desc);
+        fclose(file);
+        //printf("existe e deu certo\n");
+    }
+    else {
+        file = fopen(caminho, "w");
+        if(num == 0)
+            fprintf(file, "%d %d %d d %.2lf %s\n", dados.dia, dados.mes, dados.ano, dados.valor, dados.desc);
+        else
+            fprintf(file, "%d %d %d s %.2lf %s\n", dados.dia, dados.mes, dados.ano, dados.valor, dados.desc);
+        fclose(file);
+        //printf("n existe e deu certo\n");
+    }
+}
+
+void pegaDados(Ihandle *self){
+    //printf("%s\n", pessoaAtual);
+    Ihandle *pegaDia, *pegaMes, *pegaAno, *pegaQt;
+    Ihandle *pegaOpcao, *pegaDesc;
+
+    struct info dados;
+
+    pegaDia = IupGetDialogChild(self, "dia");
+    pegaMes = IupGetDialogChild(self, "mes");
+    pegaAno = IupGetDialogChild(self, "ano");
+    pegaQt = IupGetDialogChild(self, "quantia");
+    pegaOpcao = IupGetDialogChild(self, "lista");
+    pegaDesc = IupGetDialogChild(self, "descricao");
+
+    dados.dia = IupGetInt(pegaDia, "VALUE");
+    dados.mes = IupGetInt(pegaMes, "VALUE");
+    dados.ano = IupGetInt(pegaAno, "VALUE");
+    dados.valor = IupGetDouble(pegaQt, "VALUE");
+    dados.desc = IupGetAttribute(pegaDesc, "VALUE");
+
+    printf("%s\n", dados.desc);
+    printf("%llu\n", strlen(dados.desc));
+
+    int categoria = IupGetInt(pegaOpcao, "VALUE");
+
+    if(dados.dia < 1 || dados.dia > 31)
+        aviso("Erro", "Dia inválido. Tente novamente.");
+    else if(dados.mes < 1 || dados.mes > 12)
+        aviso("Erro", "Mês inválido. Tente novamente.");
+    else if(dados.ano < 0)
+        aviso("Erro", "Ano inválido. Tente novamente.");
+    else if(strlen(dados.desc) > MAX)
+        aviso("Erro", "Descrição muito grande. Tente novamente.");
+    else if(categoria == 0)
+        aviso("Erro", "Por favor selecione uma categoria.");
+    else if (categoria == 6 && strlen(dados.desc) == 0)
+        aviso("Erro", "Por favor escreva uma descrição.");
+    else {
+        if (deposita_saque == 0)
+            escreveArquivo(dados, categoria, 0);
+        else
+            escreveArquivo(dados, categoria, 1);
+        aviso("Sucesso", "Operação realizada!");
+        //IupClose();
+    }
+}
+
+void deposita(int argc, char **argv){
+    deposita_saque = 0;
+    IupOpen(&argc, &argv);
+
+    /*/////////////////////// ITENS /////////////////////////////*/
+
+    //botão
+    IupVar.btn = IupButton("DEPOSITAR", NULL);
+    IupSetCallback(IupVar.btn, "ACTION", (Icallback)pegaDados);
+
+    //labels
+    IupVar.label = IupLabel("Complete os campos a seguir:\n\n\n");
+    IupSetAttribute(IupVar.label, "FONTSIZE", "10");
+
+    varMov.diaL = IupLabel("Dia: ");
+    varMov.mesL = IupLabel("Mês: ");
+    varMov.anoL = IupLabel("Ano: ");
+
+    varMov.movL = IupLabel("Valor a ser depositado (caso o valor seja decimal, use o ponto):   R$");
+    IupSetAttribute(varMov.movL, "FONTSIZE", "10");
+
+    varMov.tipo = IupLabel("Categoria: ");
+
+    varMov.descricaoL = IupLabel("Descrição: ");
+
+    //lista
+    varMov.list = IupList(NULL);
+
+    IupSetAttribute(varMov.list, "NAME", "lista");
+    //IupSetAttribute(list, "EXPAND", "HORIZONTAL");
+    IupSetAttribute(varMov.list, "DROPDOWN", "YES");
+    IupSetAttribute(varMov.list, "1", "Moradia");
+    IupSetAttribute(varMov.list, "2", "Estudo");
+    IupSetAttribute(varMov.list, "3", "Transporte");
+    IupSetAttribute(varMov.list, "4", "Alimentação");
+    IupSetAttribute(varMov.list, "5", "Trabalho");
+    IupSetAttribute(varMov.list, "6", "Outros");
+    IupSetAttribute(varMov.list, "VALUE", "0");
+
+    //texts
+    varMov.movT = IupText(NULL);
+    IupSetAttribute(varMov.movT, "SIZE", "50");
+    IupSetAttribute(varMov.movT, "NAME", "quantia");
+    //IupSetAttribute(movT, "MASK", IUP_MASK_INT);
+
+    varMov.diaT = IupText(NULL);
+    IupSetAttribute(varMov.diaT, "SIZE", "50");
+    IupSetAttribute(varMov.diaT, "NAME", "dia");
+    //IupSetAttribute(diaT, "MASK", IUP_MASK_INT);
+
+    varMov.mesT = IupText(NULL);
+    IupSetAttribute(varMov.mesT, "SIZE", "50");
+    IupSetAttribute(varMov.mesT, "NAME", "mes");
+    //IupSetAttribute(mesT, "MASK", IUP_MASK_INT);
+
+    varMov.anoT = IupText(NULL);
+    IupSetAttribute(varMov.anoT, "SIZE", "50");
+    IupSetAttribute(varMov.anoT, "NAME", "ano");
+    //IupSetAttribute(anoT, "MASK", IUP_MASK_INT);
+
+    IupSetAttribute(varMov.diaT, "VALUE", "");
+    IupSetAttribute(varMov.mesT, "VALUE", "");
+    IupSetAttribute(varMov.anoT, "VALUE", "");
+
+    varMov.descricaoT = IupText(NULL);
+    IupSetAttribute(varMov.descricaoT, "SIZE", "100");
+    IupSetAttribute(varMov.descricaoT, "NAME", "descricao");
+
+    IupVar.hbox = IupHbox(
+            varMov.diaL, varMov.diaT,
+            varMov.mesL, varMov.mesT,
+            varMov.anoL, varMov.anoT,
+            NULL);
+    //IupSetAttribute(IupVar.hbox, "GAP", "15");
+    //IupSetAttribute(IupVar.hbox, "ALIGNMENT", "ACENTER");
+
+    varMov.hbox2 = IupHbox(varMov.movL, varMov.movT, NULL);
+    //IupSetAttribute(hbox2, "MARGIN", "0x50");
+    //IupSetAttribute(hbox2, "GAP", "5");
+    IupSetAttribute(varMov.hbox2, "ALIGNMENT", "ACENTER");
+
+    varMov.hbox3 = IupHbox(varMov.tipo, varMov.list, NULL);
+    //IupSetAttribute(hbox3, "GAP", "5");
+    IupSetAttribute(varMov.hbox3, "ALIGNMENT", "ACENTER");
+
+    varMov.hbox4 = IupHbox(varMov.descricaoL, varMov.descricaoT, NULL);
+    IupSetAttribute(varMov.hbox4, "ALIGNMENT", "ACENTER");
+
+    Ihandle *lb = IupLabel("");
+
+    IupVar.vbox = IupVbox(
+            IupVar.label,
+            IupVar.hbox,
+            varMov.hbox2, varMov.hbox3, varMov.hbox4,
+            lb,
+            IupVar.btn,
+            NULL);
+    IupSetAttribute(IupVar.vbox, "MARGIN", "40x30");
+    IupSetAttribute(IupVar.vbox, "GAP", "5");
+    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
+
+    //IupSetAttribute(movL, "FLOATING", "YES");
+
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Depositar");
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    /*/////////////////////// ITENS /////////////////////////////*/
+
+    IupMainLoop();
+}
+
+void saque(int argc, char **argv){
+    deposita_saque = 1;
+    IupOpen(&argc, &argv);
+
+    /*/////////////////////// ITENS /////////////////////////////*/
+
+    //botão
+    IupVar.btn = IupButton("SACAR", NULL);
+    IupSetCallback(IupVar.btn, "ACTION", (Icallback)pegaDados);
+
+    //labels
+    IupVar.label = IupLabel("Complete os campos a seguir:\n\n\n");
+    IupSetAttribute(IupVar.label, "FONTSIZE", "10");
+
+    varMov.diaL = IupLabel("Dia: ");
+    varMov.mesL = IupLabel("Mês: ");
+    varMov.anoL = IupLabel("Ano: ");
+
+    varMov.movL = IupLabel("Valor a ser sacado (caso o valor seja decimal, use o ponto):   R$");
+    IupSetAttribute(varMov.movL, "FONTSIZE", "10");
+
+    varMov.tipo = IupLabel("Categoria: ");
+
+    varMov.descricaoL = IupLabel("Descrição: ");
+
+    //lista
+    varMov.list = IupList(NULL);
+
+    IupSetAttribute(varMov.list, "NAME", "lista");
+    //IupSetAttribute(list, "EXPAND", "HORIZONTAL");
+    IupSetAttribute(varMov.list, "DROPDOWN", "YES");
+    IupSetAttribute(varMov.list, "1", "Moradia");
+    IupSetAttribute(varMov.list, "2", "Estudo");
+    IupSetAttribute(varMov.list, "3", "Transporte");
+    IupSetAttribute(varMov.list, "4", "Alimentação");
+    IupSetAttribute(varMov.list, "5", "Trabalho");
+    IupSetAttribute(varMov.list, "6", "Outros");
+    IupSetAttribute(varMov.list, "VALUE", "0");
+
+    //texts
+    varMov.movT = IupText(NULL);
+    IupSetAttribute(varMov.movT, "SIZE", "50");
+    IupSetAttribute(varMov.movT, "NAME", "quantia");
+    //IupSetAttribute(movT, "MASK", IUP_MASK_INT);
+
+    varMov.diaT = IupText(NULL);
+    IupSetAttribute(varMov.diaT, "SIZE", "50");
+    IupSetAttribute(varMov.diaT, "NAME", "dia");
+    //IupSetAttribute(diaT, "MASK", IUP_MASK_INT);
+
+    varMov.mesT = IupText(NULL);
+    IupSetAttribute(varMov.mesT, "SIZE", "50");
+    IupSetAttribute(varMov.mesT, "NAME", "mes");
+    //IupSetAttribute(mesT, "MASK", IUP_MASK_INT);
+
+    varMov.anoT = IupText(NULL);
+    IupSetAttribute(varMov.anoT, "SIZE", "50");
+    IupSetAttribute(varMov.anoT, "NAME", "ano");
+    //IupSetAttribute(anoT, "MASK", IUP_MASK_INT);
+
+    IupSetAttribute(varMov.diaT, "VALUE", "");
+    IupSetAttribute(varMov.mesT, "VALUE", "");
+    IupSetAttribute(varMov.anoT, "VALUE", "");
+
+    varMov.descricaoT = IupText(NULL);
+    IupSetAttribute(varMov.descricaoT, "SIZE", "100");
+    IupSetAttribute(varMov.descricaoT, "NAME", "descricao");
+
+    IupVar.hbox = IupHbox(
+            varMov.diaL, varMov.diaT,
+            varMov.mesL, varMov.mesT,
+            varMov.anoL, varMov.anoT,
+            NULL);
+    //IupSetAttribute(IupVar.hbox, "GAP", "15");
+    //IupSetAttribute(IupVar.hbox, "ALIGNMENT", "ACENTER");
+
+    varMov.hbox2 = IupHbox(varMov.movL, varMov.movT, NULL);
+    //IupSetAttribute(hbox2, "MARGIN", "0x50");
+    //IupSetAttribute(hbox2, "GAP", "5");
+    IupSetAttribute(varMov.hbox2, "ALIGNMENT", "ACENTER");
+
+    varMov.hbox3 = IupHbox(varMov.tipo, varMov.list, NULL);
+    //IupSetAttribute(hbox3, "GAP", "5");
+    IupSetAttribute(varMov.hbox3, "ALIGNMENT", "ACENTER");
+
+    varMov.hbox4 = IupHbox(varMov.descricaoL, varMov.descricaoT, NULL);
+    IupSetAttribute(varMov.hbox4, "ALIGNMENT", "ACENTER");
+
+    Ihandle *lb = IupLabel("");
+
+    IupVar.vbox = IupVbox(
+            IupVar.label,
+            IupVar.hbox,
+            varMov.hbox2, varMov.hbox3, varMov.hbox4,
+            lb,
+            IupVar.btn,
+            NULL);
+    IupSetAttribute(IupVar.vbox, "MARGIN", "40x30");
+    IupSetAttribute(IupVar.vbox, "GAP", "5");
+    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
+
+    //IupSetAttribute(movL, "FLOATING", "YES");
+
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Sacar");
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    /*/////////////////////// ITENS /////////////////////////////*/
+
+    IupMainLoop();
+}
+
+void pegaNome(char nome[255]){
     int i;
 
-    printf("%s\n",pessoaAtual);
-    char caminho[50];
-    char var[50];
+    //printf("%s\n",pessoaAtual);
+    char caminho[34];
+    char var[255];
+    char dindin[255];
 
     strcpy(caminho, pessoaAtual);
     strcat(caminho, "/geral.txt");
 
     FILE *arq = fopen(caminho, "r");
     fgets(var, 255, (FILE*)arq);
+    fgets(dindin, 255, (FILE*)arq);
     fclose(arq);
+    
+    printf("%s",dindin);
+    double dindinreal = atof(dindin);
+    printf("%lf", dindinreal+10);
+
     for(i=0; var[i]!='\0'; i++){
         if(var[i]=='\n'){
             var[i]= '\0';
@@ -53,15 +437,15 @@ void pegaNome(char nome[100]){
         }
     }
     strcat(nome, var);
-    printf("%s", nome);
+    //printf("%s", nome);
 };
 
 int TelaInicial(int argc, char **argv){
-    Ihandle *dlg, *vbox, *button_exit, *button_deposita, *button_saque, *label;
+    //printf("%s", pessoaAtual);
+
     Ihandle *transacoes_menu, *movimenta_menu;
     Ihandle *item_coloca, *item_retira;
     Ihandle *item_moradia, *item_estudo, *item_tranporte, *item_alimentcao, *item_trabalho, *item_geral;
-    Ihandle *item_12mes, *item_categoriames;
     Ihandle *sub_menu_transacoes, *sub_menu_movimenta, *menu;
 
     IupOpen(&argc, &argv);
@@ -85,13 +469,13 @@ int TelaInicial(int argc, char **argv){
     );
 
     movimenta_menu = IupMenu(
-        item_moradia,
-        item_estudo,
-        item_tranporte,
-        item_alimentcao,
-        item_trabalho,
-        item_geral,
-        NULL
+            item_moradia,
+            item_estudo,
+            item_tranporte,
+            item_alimentcao,
+            item_trabalho,
+            item_geral,
+            NULL
     );
 
     sub_menu_transacoes = IupSubmenu("Transações", transacoes_menu);
@@ -106,36 +490,37 @@ int TelaInicial(int argc, char **argv){
     IupSetCallback(item_retira, "ACTION", (Icallback)saque);
 
     /*/////////////////////////// MENU ////////////////////////////////////*/
+
     //mensagem inicial
-    char nome[100] = "Bem-vindo(a) ";
+
+    char nome[100] = "Bem-vindo(a), ";
     pegaNome(nome);
-    strcat(nome, " a sua carteira pessoal!");
+    strcat(nome, ", à sua carteira pessoal!");
 
-    label = IupLabel(nome);
-
-    IupSetAttribute(label, "FONTSIZE", "20");
+    IupVar.label = IupLabel(nome);
+    IupSetAttribute(IupVar.label, "FONTSIZE", "20");
 
     //botão saída
-    button_exit = IupButton("SAIR", NULL);
-    IupSetCallback(button_exit, "ACTION", (Icallback)botao_exit);
-    IupSetAttribute(button_exit, "SIZE", "35x20");
+    IupVar.button_exit = IupButton("SAIR", NULL);
+    IupSetCallback(IupVar.button_exit, "ACTION", (Icallback)botao_exit);
+    IupSetAttribute(IupVar.button_exit, "SIZE", "35x20");
 
     //vbox
-    vbox = IupVbox(
-        label,
-        button_exit,
-        NULL
-    );
-    IupSetAttribute(vbox, "ALIGNMENT", "ACENTER");
-    IupSetAttribute(vbox, "MARGIN", "200x200");
-    IupSetAttribute(vbox, "GAP", "40");
+    IupVar.vbox = IupVbox(
+            IupVar.label,
+            IupVar.button_exit,
+            NULL);
+    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
+    IupSetAttribute(IupVar.vbox, "MARGIN", "200x200");
+    IupSetAttribute(IupVar.vbox, "GAP", "40");
 
-    dlg = IupDialog(vbox);
+    IupVar.dlg = IupDialog(IupVar.vbox);
 
-    IupSetAttribute(dlg, "TITLE", "Carteira Pessoal");
-    IupSetAttributeHandle(dlg, "MENU", menu);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Carteira Pessoal");
+    IupSetAttributeHandle(IupVar.dlg, "MENU", menu);
+    //IupSetAttribute(IupVar.dlg, "BACKGROUND", "BACKGROUND");
 
-    IupShowXY(dlg, IUP_CENTER, IUP_CENTER);
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     IupMainLoop();
 
@@ -148,8 +533,8 @@ int analisaCadastro(Ihandle *entrada){
     Ihandle *valor = IupGetDialogChild(entrada, "VALOR");
     double v = IupGetDouble(valor, "VALUE");
     char *n = IupGetAttribute(nome, "VALUE");
-    printf("%.2lf\n", v);
-    printf("%s\n", n);
+    //printf("%.2lf\n", v);
+    //printf("%s\n", n);
     char pessoa[50];
     strcpy(pessoa, pessoaAtual);
     strcat(pessoa, "/geral.txt");
@@ -163,14 +548,14 @@ int analisaCadastro(Ihandle *entrada){
     return IUP_CLOSE;
 }
 void CadastraUsuario(int argc, char **argv){
-    Ihandle *dlg, *label, *btcadastra,  *vbox;
+    Ihandle *btcadastra;
     Ihandle *labelNome, *labelValor;
     Ihandle *nome, *valor;
 
     IupOpen(&argc, &argv);
 
-    label = IupLabel("Olá novo usuario(a), cadastre-se para desfrutar de nossos servicos : \n\n\n");
-    IupSetAttribute(label, "FONT", "DEFAULTFONT , 14");
+    IupVar.label = IupLabel("Olá novo usuario(a), cadastre-se para desfrutar de nossos servicos : \n\n\n");
+    IupSetAttribute(IupVar.label, "FONT", "DEFAULTFONT , 14");
     labelNome = IupLabel("Insira seu nome :");
     IupSetAttribute(labelNome, "FONT", "DEFAULTFONT , 12");
     labelValor = IupLabel("Quantia inicial da conta (utilize ponto) :");
@@ -190,24 +575,24 @@ void CadastraUsuario(int argc, char **argv){
     btcadastra = IupButton("Cadastrar", NULL);
     IupSetAttribute(btcadastra, "SIZE", "80x20");
     IupSetCallback(btcadastra, "ACTION", (Icallback)analisaCadastro);
-    vbox = IupVbox(
-        label,
-        labelNome,
-        nome,
-        labelValor,
-        valor,
-        btcadastra,
-        NULL
+    IupVar.vbox = IupVbox(
+            IupVar.label,
+            labelNome,
+            nome,
+            labelValor,
+            valor,
+            btcadastra,
+            NULL
     );
 
-    IupSetAttribute(vbox, "ALIGNMENT", "ACENTER");
-    IupSetAttribute(vbox, "GAP", "30");
-    IupSetAttribute(vbox, "MARGIN", "150x150");
+    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
+    IupSetAttribute(IupVar.vbox, "GAP", "30");
+    IupSetAttribute(IupVar.vbox, "MARGIN", "150x150");
 
-    dlg = IupDialog(vbox);
-    IupSetAttribute(dlg, "TITLE", "Carteira Pessoal");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Carteira Pessoal");
 
-    IupShowXY(dlg, IUP_CENTER, IUP_CENTER);
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     IupMainLoop();
 
@@ -217,27 +602,37 @@ void CadastraUsuario(int argc, char **argv){
     TelaInicial(argc, argv);
 }
 
+int contaDigitos(unsigned long long int valor){
+    int tam = 0;
+    if (valor == 0)
+        tam = 1;
+    else{
+        while (valor != 0){
+            tam += 1;
+            valor /= 10;
+        }
+    }
+    return tam;
+}
+
 int analisaCPF(Ihandle *inserecpf){
     Ihandle *a = IupGetDialogChild(inserecpf, "CPF");
-    Ihandle *b = IupGetDialogChild(inserecpf, "ERROU");
-    double value = IupGetDouble(a, "VALUE");
+    unsigned long long int value = IupGetDouble(a, "VALUE");
 
-    printf("%.0lf\n", value);
+    int tam = contaDigitos(value);
 
-    char cpf[30];
-    sprintf(cpf, "%.0lf", value);
-    unsigned long int tam_cpf = strlen(cpf);
+    if (tam == 11){
+        char cpf[12];
+        sprintf(cpf, "%.llu", value);
 
-    if(tam_cpf==11){
-        char pasta[50] = "./Pessoas/";
-        strcat(pasta,cpf);
+        char pasta[23] = "./Pessoas/";
+        strcat(pasta, cpf);
         strcpy(pessoaAtual, pasta);
-        //printf("%s\n", pessoaAtual);
-        IupSetAttribute(b, "VISIBLE", "NO");
-
-        //printf("%s", pasta);
-        //printf("%lu", tam_cpf);
-
+        /*
+        printf("%s\n", pessoaAtual);
+        printf("%s", pasta);
+        printf("%lu", tam_cpf);
+        */
         if(mkdir(pasta)){
             globalVar = 1;
         }
@@ -246,22 +641,19 @@ int analisaCPF(Ihandle *inserecpf){
         }
         return IUP_CLOSE;
     }
-
     else{
-        printf("Digite novamente\n");
-        IupSetAttribute(b, "VISIBLE", "YES");
+        if(tam > 11)
+            aviso("Erro", "CPF contém mais de 11 dígitos.\n\nTente novamente.");
+        else
+            aviso("Erro", "CPF contém menos de 11 dígitos ou caracteres não numéricos.\n\nTente novamente.");
     }
 }
 void pedeCPF(int argc, char **argv){
-    Ihandle *dlg, *btconfirma, *label, *vbox, *inserecpf, *denovo;
+    Ihandle *btconfirma, *inserecpf;
 
     IupOpen(&argc, &argv);
 
-    label = IupLabel("Digite o seu CPF (apenas numeros):\n");
-
-    denovo = IupLabel("CPF nao contem 11 digitos!");
-    IupSetAttribute(denovo, "NAME", "ERROU");
-    IupSetAttribute(denovo, "VISIBLE", "NO");
+    IupVar.label = IupLabel("Digite o seu CPF (apenas números):\n");
 
     btconfirma = IupButton("Enviar", NULL);
     IupSetCallback(btconfirma, "ACTION", (Icallback) analisaCPF);
@@ -271,22 +663,21 @@ void pedeCPF(int argc, char **argv){
     IupSetAttribute(inserecpf, "VALUE", "");
     IupSetAttribute(inserecpf, "NAME", "CPF");
 
-    vbox= IupVbox(label, denovo, inserecpf, btconfirma, NULL);
-    IupSetAttribute(vbox, "ALIGNMENT", "ACENTER");
-    IupSetAttribute(vbox, "GAP", "10");
-    IupSetAttribute(vbox, "MARGIN", "100x100");
-    IupSetAttribute(vbox, "GAP", "20");
-    dlg = IupDialog(vbox);
-    IupSetAttribute(dlg, "TITLE", "Carteira Pessoal");
+    IupVar.vbox = IupVbox(IupVar.label, inserecpf, btconfirma, NULL);
+    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
+    IupSetAttribute(IupVar.vbox, "GAP", "10");
+    IupSetAttribute(IupVar.vbox, "MARGIN", "100x100");
+    IupSetAttribute(IupVar.vbox, "GAP", "20");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Carteira Pessoal");
 
-    IupShowXY(dlg, IUP_CENTER, IUP_CENTER);
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     IupMainLoop();
 
     IupClose();
 
     EXIT_SUCCESS;
-
 };
 
 int main(int argc, char **argv){
@@ -302,4 +693,6 @@ int main(int argc, char **argv){
     else if(globalVar==2){
         CadastraUsuario(argc, argv);
     }
+
+    //deposita(argc, argv);
 }
