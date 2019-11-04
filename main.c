@@ -4,11 +4,14 @@
 #include <sys/stat.h>
 
 #define MAX 100
+#define maxCaminho 39
 
 int globalVar = 0;
 //deposita = 0, saque = 1
 int deposita_saque = 0;
 char pessoaAtual[23];
+double saldo;
+char nomeAtual[255];
 
 struct variaveis{
     Ihandle *dlg, *label, *vbox, *hbox;
@@ -40,6 +43,8 @@ void CadastraUsuario(int argc, char **argv);
 int contaDigitos(unsigned long long int valor);
 int analisaCPF(Ihandle *inserecpf);
 void pedeCPF(int argc, char **argv);
+void atualizaGeral();
+
 /*/////funções/////*/
 
 int botao_exit(Ihandle *self){
@@ -80,10 +85,29 @@ int existeArq(char caminho[]){
     return 1;
 }
 
+void atualizaGeral(int num, double valor){
+    if(num == 0) {
+        saldo += valor;
+        printf("%lf\n", saldo);
+    }
+    if(num == 1) {
+        saldo -= valor;
+        printf("%lf\n", saldo);
+    }
+
+    char caminho[maxCaminho];
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/geral.txt");
+
+    FILE *arq = fopen(caminho, "w");
+    fprintf(arq, "%s\n%.2lf", nomeAtual, saldo);
+    fclose(arq);
+}
+
 void escreveArquivo(struct info dados, int op, int num){
     int verif;
     FILE *file;
-    char caminho[39];
+    char caminho[maxCaminho];
 
     strcpy(caminho, pessoaAtual);
 
@@ -106,19 +130,27 @@ void escreveArquivo(struct info dados, int op, int num){
 
     if (verif == 1){
         file = fopen(caminho, "a");
-        if(num == 0)
+        if(num == 0) {
             fprintf(file, "%d %d %d d %.2lf %s\n", dados.dia, dados.mes, dados.ano, dados.valor, dados.desc);
-        else
+            atualizaGeral(0, dados.valor);
+        }
+        else {
             fprintf(file, "%d %d %d s %.2lf %s\n", dados.dia, dados.mes, dados.ano, dados.valor, dados.desc);
+            atualizaGeral(1, dados.valor);
+        }
         fclose(file);
         //printf("existe e deu certo\n");
     }
     else {
         file = fopen(caminho, "w");
-        if(num == 0)
+        if(num == 0) {
             fprintf(file, "%d %d %d d %.2lf %s\n", dados.dia, dados.mes, dados.ano, dados.valor, dados.desc);
-        else
+            atualizaGeral(0, dados.valor);
+        }
+        else {
             fprintf(file, "%d %d %d s %.2lf %s\n", dados.dia, dados.mes, dados.ano, dados.valor, dados.desc);
+            atualizaGeral(1, dados.valor);
+        }
         fclose(file);
         //printf("n existe e deu certo\n");
     }
@@ -144,8 +176,8 @@ void pegaDados(Ihandle *self){
     dados.valor = IupGetDouble(pegaQt, "VALUE");
     dados.desc = IupGetAttribute(pegaDesc, "VALUE");
 
-    printf("%s\n", dados.desc);
-    printf("%llu\n", strlen(dados.desc));
+    //printf("%s\n", dados.desc);
+    //printf("%llu\n", strlen(dados.desc));
 
     int categoria = IupGetInt(pegaOpcao, "VALUE");
 
@@ -398,24 +430,28 @@ void saque(int argc, char **argv){
 void pegaNome(char nome[255]){
     int i;
 
-    //printf("%s\n",pessoaAtual);
-    char caminho[34];
-    char var[255];
+    printf("%s\n",pessoaAtual);
+    char caminho[maxCaminho];
+    char dindin[255];
 
     strcpy(caminho, pessoaAtual);
     strcat(caminho, "/geral.txt");
 
     FILE *arq = fopen(caminho, "r");
-    fgets(var, 255, (FILE*)arq);
+    fgets(nomeAtual, 255, (FILE*)arq);
+    fgets(dindin, 255, (FILE*)arq);
     fclose(arq);
-    for(i=0; var[i]!='\0'; i++){
-        if(var[i]=='\n'){
-            var[i]= '\0';
+
+    printf("%s",dindin);
+    saldo = atof(dindin);
+
+    for(i=0; nomeAtual[i]!='\0'; i++){
+        if(nomeAtual[i]=='\n'){
+            nomeAtual[i]= '\0';
             break;
         }
     }
-    strcat(nome, var);
-    //printf("%s", nome);
+    strcat(nome, nomeAtual);
 };
 
 int TelaInicial(int argc, char **argv){
@@ -627,11 +663,17 @@ int analisaCPF(Ihandle *inserecpf){
     }
 }
 void pedeCPF(int argc, char **argv){
-    Ihandle *btconfirma, *inserecpf;
+    Ihandle *btconfirma, *inserecpf, *label2, *fill;
 
     IupOpen(&argc, &argv);
 
+    label2 = IupLabel("Olá, usuário!\n\n");
+    IupSetAttribute(label2, "FONTSIZE", "15");
+
+    fill = IupLabel("");
+
     IupVar.label = IupLabel("Digite o seu CPF (apenas números):\n");
+    IupSetAttribute(IupVar.label, "FONTSIZE", "10");
 
     btconfirma = IupButton("Enviar", NULL);
     IupSetCallback(btconfirma, "ACTION", (Icallback) analisaCPF);
@@ -641,10 +683,10 @@ void pedeCPF(int argc, char **argv){
     IupSetAttribute(inserecpf, "VALUE", "");
     IupSetAttribute(inserecpf, "NAME", "CPF");
 
-    IupVar.vbox = IupVbox(IupVar.label, inserecpf, btconfirma, NULL);
+    IupVar.vbox = IupVbox(label2, IupVar.label, inserecpf, fill, btconfirma, NULL);
     IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
     IupSetAttribute(IupVar.vbox, "GAP", "10");
-    IupSetAttribute(IupVar.vbox, "MARGIN", "100x100");
+    IupSetAttribute(IupVar.vbox, "MARGIN", "80x80");
     IupSetAttribute(IupVar.vbox, "GAP", "20");
     IupVar.dlg = IupDialog(IupVar.vbox);
     IupSetAttribute(IupVar.dlg, "TITLE", "Carteira Pessoal");
@@ -671,6 +713,4 @@ int main(int argc, char **argv){
     else if(globalVar==2){
         CadastraUsuario(argc, argv);
     }
-
-    //deposita(argc, argv);
 }
