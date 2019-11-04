@@ -19,7 +19,8 @@ struct variaveis{
 }IupVar;
 struct info{
     int dia, mes, ano;
-    float valor;
+    double valor;
+    char transacao;
     char *desc;
 };
 struct movimenta{
@@ -32,10 +33,9 @@ struct movimenta{
 int botao_exit(Ihandle *self);
 void aviso(char titulo[], char msgm[]);
 int existeArq(char caminho[]);
-void moradia(struct info dados);
-void pegaDeposito(Ihandle *self);
-void deposita(int argc, char **argv);
-void saque(int argc, char **argv);
+int pegaDados(Ihandle *self);
+int deposita(int argc, char **argv);
+int saque(int argc, char **argv);
 void pegaNome(char nome[255]);
 int TelaInicial(int argc, char **argv);
 int analisaCadastro(Ihandle *entrada);
@@ -43,7 +43,7 @@ void CadastraUsuario(int argc, char **argv);
 int contaDigitos(unsigned long long int valor);
 int analisaCPF(Ihandle *inserecpf);
 void pedeCPF(int argc, char **argv);
-void atualizaGeral();
+void atualizaGeral(int x, double y);
 
 /*/////funções/////*/
 
@@ -104,6 +104,28 @@ void atualizaGeral(int num, double valor){
     fclose(arq);
 }
 
+int relatorioMoradia(){
+    struct info dados;
+    char caminho[maxCaminho];
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/moradia.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+        while (!feof(arq))
+        {
+            fscanf(arq,"%d %d %d %c %lf %s", &(dados.dia), &(dados.mes), &(dados.ano), &(dados.transacao), &(dados.valor), dados.desc);
+            //printf("%d %d %d %c %.2lf %s", i, i2, i3, op, valor, texto);
+        }
+    }
+    else{
+        aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
+    }
+}
+
 void escreveArquivo(struct info dados, int op, int num){
     int verif;
     FILE *file;
@@ -156,7 +178,7 @@ void escreveArquivo(struct info dados, int op, int num){
     }
 }
 
-void pegaDados(Ihandle *self){
+int pegaDados(Ihandle *self){
     //printf("%s\n", pessoaAtual);
     Ihandle *pegaDia, *pegaMes, *pegaAno, *pegaQt;
     Ihandle *pegaOpcao, *pegaDesc;
@@ -201,9 +223,10 @@ void pegaDados(Ihandle *self){
         aviso("Sucesso", "Operação realizada!");
         //IupClose();
     }
+    return IUP_CLOSE;
 }
 
-void deposita(int argc, char **argv){
+int deposita(int argc, char **argv){
     deposita_saque = 0;
     IupOpen(&argc, &argv);
 
@@ -226,7 +249,7 @@ void deposita(int argc, char **argv){
 
     varMov.tipo = IupLabel("Categoria: ");
 
-    varMov.descricaoL = IupLabel("Descrição: ");
+    varMov.descricaoL = IupLabel("Descrição (no máximo uma palavra): ");
 
     //lista
     varMov.list = IupList(NULL);
@@ -313,9 +336,11 @@ void deposita(int argc, char **argv){
     /*/////////////////////// ITENS /////////////////////////////*/
 
     IupMainLoop();
+
+    return IUP_CLOSE;
 }
 
-void saque(int argc, char **argv){
+int saque(int argc, char **argv){
     deposita_saque = 1;
     IupOpen(&argc, &argv);
 
@@ -425,12 +450,14 @@ void saque(int argc, char **argv){
     /*/////////////////////// ITENS /////////////////////////////*/
 
     IupMainLoop();
+
+    return IUP_CLOSE;
 }
 
 void pegaNome(char nome[255]){
     int i;
 
-    printf("%s\n",pessoaAtual);
+    //printf("%s\n",pessoaAtual);
     char caminho[maxCaminho];
     char dindin[255];
 
@@ -442,7 +469,7 @@ void pegaNome(char nome[255]){
     fgets(dindin, 255, (FILE*)arq);
     fclose(arq);
 
-    printf("%s",dindin);
+    //printf("%s",dindin);
     saldo = atof(dindin);
 
     for(i=0; nomeAtual[i]!='\0'; i++){
@@ -459,7 +486,7 @@ int TelaInicial(int argc, char **argv){
 
     Ihandle *transacoes_menu, *movimenta_menu;
     Ihandle *item_coloca, *item_retira;
-    Ihandle *item_moradia, *item_estudo, *item_tranporte, *item_alimentcao, *item_trabalho, *item_geral;
+    Ihandle *item_moradia, *item_estudo, *item_tranporte, *item_alimentcao, *item_trabalho;
     Ihandle *sub_menu_transacoes, *sub_menu_movimenta, *menu;
 
     IupOpen(&argc, &argv);
@@ -474,7 +501,6 @@ int TelaInicial(int argc, char **argv){
     item_tranporte = IupItem("Transporte", NULL);
     item_alimentcao = IupItem("Alimentação", NULL);
     item_trabalho = IupItem("Trabalho", NULL);
-    item_geral = IupItem("Geral", NULL);
 
     transacoes_menu = IupMenu(
             item_coloca,
@@ -488,7 +514,6 @@ int TelaInicial(int argc, char **argv){
             item_tranporte,
             item_alimentcao,
             item_trabalho,
-            item_geral,
             NULL
     );
 
@@ -502,6 +527,11 @@ int TelaInicial(int argc, char **argv){
 
     IupSetCallback(item_coloca, "ACTION", (Icallback)deposita);
     IupSetCallback(item_retira, "ACTION", (Icallback)saque);
+    IupSetCallback(item_moradia, "ACTION", (Icallback)relatorioMoradia);
+    /*IupSetCallback(item_estudo, "ACTION", (Icallback)relatorioEstudo);
+    IupSetCallback(item_tranporte, "ACTION", (Icallback)relatorioTransp);
+    IupSetCallback(item_alimentcao, "ACTION", (Icallback)relatorioAliment);
+    IupSetCallback(item_trabalho, "ACTION", (Icallback)relatorioTrabalho);*/
 
     /*/////////////////////////// MENU ////////////////////////////////////*/
 
@@ -568,11 +598,11 @@ void CadastraUsuario(int argc, char **argv){
 
     IupOpen(&argc, &argv);
 
-    IupVar.label = IupLabel("Olá novo usuario(a), cadastre-se para desfrutar de nossos servicos : \n\n\n");
+    IupVar.label = IupLabel("Olá, novo usuário(a), cadastre-se para desfrutar de nossos serviços : \n\n\n");
     IupSetAttribute(IupVar.label, "FONT", "DEFAULTFONT , 14");
     labelNome = IupLabel("Insira seu nome :");
     IupSetAttribute(labelNome, "FONT", "DEFAULTFONT , 12");
-    labelValor = IupLabel("Quantia inicial da conta (utilize ponto) :");
+    labelValor = IupLabel("Quantia inicial da conta (para número decimal, utilize o ponto) :");
     IupSetAttribute(labelValor, "FONT", "DEFAULTFONT , 12");
 
     nome = IupText(NULL);
