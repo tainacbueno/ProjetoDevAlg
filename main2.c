@@ -7,11 +7,12 @@
 #define maxCaminho 39
 
 int globalVar = 0;
-//deposita = 0, saque = 1
 int deposita_saque = 0;
 char pessoaAtual[23];
 double saldo;
 char nomeAtual[255];
+char *globalAno = "0";
+
 
 struct variaveis{
     Ihandle *dlg, *label, *vbox, *hbox;
@@ -37,23 +38,8 @@ struct guardaChar{
     char desc[100];
 }dados;
 
-/*/////funções/////*/
-int botao_exit(Ihandle *self);
-void aviso(char titulo[], char msgm[]);
-int existeArq(char caminho[]);
-int pegaDados(Ihandle *self);
-int deposita(int argc, char **argv);
-int saque(int argc, char **argv);
-void pegaNome(char nome[255]);
-int TelaInicial(int argc, char **argv);
-int analisaCadastro(Ihandle *entrada);
-void CadastraUsuario(int argc, char **argv);
-int contaDigitos(unsigned long long int valor);
-int analisaCPF(Ihandle *inserecpf);
-void pedeCPF(int argc, char **argv);
-void atualizaGeral(int x, double y);
-
-/*/////funções/////*/
+struct guardaChar geral[1000];
+int posGeral = 0;
 
 int botao_exit(Ihandle *self){
     IupVar.dlg = IupMessageDlg();
@@ -93,7 +79,7 @@ int existeArq(char caminho[]){
     return 1;
 }
 
-void atualizaGeral(int num, double valor){
+int atualizaGeral(int num, double valor){
     if(num == 0) {
         saldo += valor;
         //printf("%lf\n", saldo);
@@ -110,13 +96,14 @@ void atualizaGeral(int num, double valor){
     FILE *arq = fopen(caminho, "w");
     fprintf(arq, "%s\n%.2lf", nomeAtual, saldo);
     fclose(arq);
+
+    return EXIT_SUCCESS;
 }
 
 int ehMaior(struct guardaChar a, struct guardaChar b){
     if(atoi(a.ano) == atoi(b.ano)){
-        if(atoi(a.mes) == atoi(b.mes)){
+        if(atoi(a.mes) == atoi(b.mes))
             return atoi(a.dia) < atoi(b.dia);
-        }
         return atoi(a.mes) < atoi(b.mes);
     }
     return atoi(a.ano) < atoi(b.ano);
@@ -131,21 +118,26 @@ void ordena(struct guardaChar *guarda, int n){
 
     for ( i = 0; i < n-1; ++i) {
         for (j = 0; j <n-1 ; ++j) {
-            if(ehMaior(guarda[j], guarda[j+1]) == 1){
+            if(ehMaior(guarda[j], guarda[j+1]) == 1)
                 troca(&guarda[j], &guarda[j+1]);
-            }
         }
     }
 }
 
-int imprimeRelatorio(struct guardaChar guarda[1000], int i){
+void imprimeRelatorio(struct guardaChar guarda[1000], int i){
     ordena(guarda, i);
     Ihandle *texto = IupText(NULL);
     IupSetAttribute(texto, "MULTILINE", "YES");
     IupSetAttribute(texto, "READONLY", "YES");
-    IupSetAttribute(texto, "SIZE", "200x200");
+    IupSetAttribute(texto, "NAME", "CAIXA");
+    IupSetAttribute(texto, "SIZE", "200x80");
 
-    IupVar.vbox = IupVbox(texto, NULL);
+    IupVar.label = IupLabel("Relátorio total:\n\n");
+    IupSetAttribute(IupVar.label, "FONTSIZE", "15");
+
+    IupVar.vbox = IupVbox(IupVar.label, texto, NULL);
+    IupSetAttribute(IupVar.vbox, "MARGIN", "60x60");
+    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
 
     IupVar.dlg = IupDialog(IupVar.vbox);
 
@@ -154,25 +146,31 @@ int imprimeRelatorio(struct guardaChar guarda[1000], int i){
     int j;
 
     char letra[9];
+    char prom[4];
 
     for (j = 0; j < i; ++j) {
-        if (guarda[j].tipo == 'd')
+        if (guarda[j].tipo == 'd') {
             strcpy(letra, "depositou");
-        else
+            strcpy(prom, "de");
+        }
+        else {
             strcpy(letra, "sacou");
+            strcpy(prom, "para");
+        }
 
         char buf[1000];
-        snprintf(buf, sizeof buf, "Em %s/%s/%s %s R$%s para %s\n", guarda[j].dia, guarda[j].mes, guarda[j].ano, letra, guarda[j].valor,
+        snprintf(buf, sizeof buf, "Em %s/%s/%s %s R$%s %s %s\n\n", guarda[j].dia, guarda[j].mes, guarda[j].ano, letra, guarda[j].valor, prom,
                  guarda[j].desc);
         IupSetAttribute(texto, "INSERT", buf);
     }
     IupMainLoop();
-    return EXIT_SUCCESS;
+    IupExitLoop();
+    int a = IupMainLoopLevel();
+    printf("imprimeRelat: %d\n", a);
 }
 
 int relatorioMoradia(){
     struct guardaChar guarda[1000];
-    struct guardaChar var;
     char caminho[maxCaminho];
     int i = 0;
 
@@ -186,20 +184,291 @@ int relatorioMoradia(){
 
         while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
         {
-            guarda[i] = dados;
-            i++;
+            if(strcmp(globalAno,"0") == 0){
+                guarda[i] = dados;
+                i++;
+            }
+            else{
+                if(strcmp(globalAno, dados.ano) == 0){
+                    //printf("MORADIAAAAA\n");
+                    geral[posGeral] = dados;
+                    posGeral++;
+                }
+            }
             //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
-        imprimeRelatorio(guarda, i);
+        if(strcmp(globalAno,"0") == 0)
+            imprimeRelatorio(guarda, i);
     }
-    else{
+    else if (globalAno==0){
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
-    return IUP_CLOSE;
+
+    int a = IupMainLoopLevel();
+    printf("relatorioM: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+int relatorioEstudo(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/estudo.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            if(strcmp(globalAno,"0") == 0){
+                guarda[i] = dados;
+                i++;
+            }
+            else{
+                if(strcmp(globalAno, dados.ano) == 0){
+                    //printf("ESTUDOOOOOOO\n");
+                    geral[posGeral] = dados;
+                    posGeral++;
+                }
+            }
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        if(strcmp(globalAno,"0") == 0)
+            imprimeRelatorio(guarda, i);
+    }
+    else if (globalAno==0){
+        aviso("Erro", "Não há nada registrado em Estudo. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioE: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+int relatorioTrabalho(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/trabalho.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            if(strcmp(globalAno,"0") == 0){
+                guarda[i] = dados;
+                i++;
+            }
+            else{
+                if(strcmp(globalAno, dados.ano) == 0){
+                    //printf("MORADIAAAAA\n");
+                    geral[posGeral] = dados;
+                    posGeral++;
+                }
+            }
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        if(strcmp(globalAno,"0") == 0)
+            imprimeRelatorio(guarda, i);
+    }
+    else if (globalAno==0){
+        aviso("Erro", "Não há nada registrado em Trabalho. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioTrab: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+int relatorioOutros(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/outros.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            if(strcmp(globalAno,"0") == 0){
+                guarda[i] = dados;
+                i++;
+            }
+            else{
+                if(strcmp(globalAno, dados.ano) == 0){
+                    //printf("MORADIAAAAA\n");
+                    geral[posGeral] = dados;
+                    posGeral++;
+                }
+            }
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        if(strcmp(globalAno,"0") == 0)
+            imprimeRelatorio(guarda, i);
+    }
+    else if (globalAno==0){
+        aviso("Erro", "Não há nada registrado em Outros. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioO: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+int relatorioAlimentacao(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/alimentacao.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            if(strcmp(globalAno,"0") == 0){
+                guarda[i] = dados;
+                i++;
+            }
+            else{
+                if(strcmp(globalAno, dados.ano) == 0){
+                    printf("MORADIAAAAA\n");
+                    geral[posGeral] = dados;
+                    posGeral++;
+                }
+            }
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        if(strcmp(globalAno,"0") == 0)
+            imprimeRelatorio(guarda, i);
+    }
+    else if (globalAno==0){
+        aviso("Erro", "Não há nada registrado em Alimentação. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioA: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+int relatorioTransporte(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/transporte.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            if(strcmp(globalAno,"0") == 0){
+                guarda[i] = dados;
+                i++;
+            }
+            else{
+                if(strcmp(globalAno, dados.ano) == 0){
+                    //printf("MORADIAAAAA\n");
+                    geral[posGeral] = dados;
+                    posGeral++;
+                }
+            }
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        if(strcmp(globalAno,"0") == 0)
+            imprimeRelatorio(guarda, i);
+    }
+    else if (globalAno==0){
+        aviso("Erro", "Não há nada registrado em Transporte. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioT: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
 }
 
-void escreveArquivo(struct info dados, int op, int num){
+int pegaAno(Ihandle *self){
+    Ihandle *a = IupGetDialogChild(self, "ANO");
+    globalAno = IupGetAttribute(a, "VALUE");
+
+    relatorioMoradia();
+    relatorioEstudo();
+    relatorioTrabalho();
+    relatorioAlimentacao();
+    relatorioTransporte();
+    relatorioOutros();
+
+    imprimeRelatorio(geral, posGeral);
+
+    globalAno = "0";
+    posGeral = 0;
+
+    return EXIT_SUCCESS;
+}
+int pedeAno(int argc, char **argv){
+    Ihandle *btconfirma, *insereano;
+
+    IupOpen(&argc, &argv);
+
+    IupVar.label = IupLabel("Digite o ano:\n");
+    IupSetAttribute(IupVar.label, "FONTSIZE", "10");
+
+    btconfirma = IupButton("Enviar", NULL);
+    IupSetCallback(btconfirma, "ACTION", (Icallback) pegaAno);
+
+    insereano = IupText(NULL);
+    IupSetAttribute(insereano, "EXPAND", "YES");
+    IupSetAttribute(insereano, "VALUE", "");
+    IupSetAttribute(insereano, "NAME", "ANO");
+
+    IupVar.vbox = IupVbox(IupVar.label, insereano, btconfirma, NULL);
+    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
+    IupSetAttribute(IupVar.vbox, "GAP", "10");
+    IupSetAttribute(IupVar.vbox, "MARGIN", "80x80");
+    IupSetAttribute(IupVar.vbox, "GAP", "20");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Carteira Pessoal");
+
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    IupMainLoop();
+
+    IupClose();
+
+    return IUP_CLOSE;
+
+}
+
+int escreveArquivo(struct info dados, int op, int num){
     int verif;
     FILE *file;
     char caminho[maxCaminho];
@@ -249,6 +518,11 @@ void escreveArquivo(struct info dados, int op, int num){
         fclose(file);
         //printf("n existe e deu certo\n");
     }
+
+    int a = IupMainLoopLevel();
+    printf("escreveArq: %d\n", a);
+    /*IupClose();
+    return EXIT_SUCCESS;*/
 }
 
 int pegaDados(Ihandle *self){
@@ -296,8 +570,12 @@ int pegaDados(Ihandle *self){
         aviso("Sucesso", "Operação realizada!");
         //IupClose();
     }
-}
 
+    int a = IupMainLoopLevel();
+    printf("pegaDados: %d\n", a);
+
+    //return IupExitLoop();
+}
 int deposita(int argc, char **argv){
     deposita_saque = 0;
     IupOpen(&argc, &argv);
@@ -403,15 +681,21 @@ int deposita(int argc, char **argv){
 
     IupVar.dlg = IupDialog(IupVar.vbox);
     IupSetAttribute(IupVar.dlg, "TITLE", "Depositar");
+    //IupSetAttribute(IupVar.dlg, "IupExitLoop", "NO");
     IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     /*/////////////////////// ITENS /////////////////////////////*/
 
     IupMainLoop();
-    IupClose();
-    return IUP_CLOSE;
+    IupExitLoop();
+    int a = IupMainLoopLevel();
+    printf("deposita: %d\n", a);
+    //return  IUP_CLOSE;
+    //IupDestroy(IupVar.dlg);
+    //return EXIT_SUCCESS;
+    //IUP_CLOSE;
+    //return IUP_DEFAULT;
 }
-
 int saque(int argc, char **argv){
     deposita_saque = 1;
     IupOpen(&argc, &argv);
@@ -435,7 +719,7 @@ int saque(int argc, char **argv){
 
     varMov.tipo = IupLabel("Categoria: ");
 
-    varMov.descricaoL = IupLabel("Descrição: ");
+    varMov.descricaoL = IupLabel("Descrição (no máximo uma palavra): ");
 
     //lista
     varMov.list = IupList(NULL);
@@ -517,13 +801,17 @@ int saque(int argc, char **argv){
 
     IupVar.dlg = IupDialog(IupVar.vbox);
     IupSetAttribute(IupVar.dlg, "TITLE", "Sacar");
+    //IupSetAttribute(IupVar.dlg, "IupExitLoop", "NO");
     IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     /*/////////////////////// ITENS /////////////////////////////*/
 
     IupMainLoop();
-
-    return IUP_CLOSE;
+    IupExitLoop();
+    //IupClose();
+    //return IUP_CLOSE;
+    /*int a = IupMainLoopLevel();
+    printf("saca: %d\n", a);*/
 }
 
 void pegaNome(char nome[255]){
@@ -551,14 +839,23 @@ void pegaNome(char nome[255]){
         }
     }
     strcat(nome, nomeAtual);
-};
+}
+
+int consultaSaldo(){
+    char guardaSaldo[1020];
+    snprintf(guardaSaldo, sizeof guardaSaldo, "%s %.2lf", "Seu saldo atual é de R$", saldo);
+
+    IupVar.label = IupLabel(guardaSaldo);
+    IupSetAttribute(IupVar.label, "FONTSIZE", "10");
+    IupMessage("Saldo", guardaSaldo);
+}
 
 int TelaInicial(int argc, char **argv){
     //printf("%s", pessoaAtual);
 
     Ihandle *transacoes_menu, *movimenta_menu;
     Ihandle *item_coloca, *item_retira;
-    Ihandle *item_moradia, *item_estudo, *item_tranporte, *item_alimentcao, *item_trabalho;
+    Ihandle *item_moradia, *item_estudo, *item_tranporte, *item_alimentcao, *item_trabalho, *item_outros, *item_anual;
     Ihandle *sub_menu_transacoes, *sub_menu_movimenta, *menu;
 
     IupOpen(&argc, &argv);
@@ -573,6 +870,8 @@ int TelaInicial(int argc, char **argv){
     item_tranporte = IupItem("Transporte", NULL);
     item_alimentcao = IupItem("Alimentação", NULL);
     item_trabalho = IupItem("Trabalho", NULL);
+    item_outros = IupItem("Outros", NULL);
+    item_anual = IupItem("Anual", NULL);
 
     transacoes_menu = IupMenu(
             item_coloca,
@@ -586,6 +885,8 @@ int TelaInicial(int argc, char **argv){
             item_tranporte,
             item_alimentcao,
             item_trabalho,
+            item_outros,
+            item_anual,
             NULL
     );
 
@@ -600,21 +901,27 @@ int TelaInicial(int argc, char **argv){
     IupSetCallback(item_coloca, "ACTION", (Icallback)deposita);
     IupSetCallback(item_retira, "ACTION", (Icallback)saque);
     IupSetCallback(item_moradia, "ACTION", (Icallback)relatorioMoradia);
-    /*IupSetCallback(item_estudo, "ACTION", (Icallback)relatorioEstudo);
-    IupSetCallback(item_tranporte, "ACTION", (Icallback)relatorioTransp);
-    IupSetCallback(item_alimentcao, "ACTION", (Icallback)relatorioAliment);
-    IupSetCallback(item_trabalho, "ACTION", (Icallback)relatorioTrabalho);*/
+    IupSetCallback(item_estudo, "ACTION", (Icallback)relatorioEstudo);
+    IupSetCallback(item_tranporte, "ACTION", (Icallback)relatorioTransporte);
+    IupSetCallback(item_alimentcao, "ACTION", (Icallback)relatorioAlimentacao);
+    IupSetCallback(item_trabalho, "ACTION", (Icallback)relatorioTrabalho);
+    IupSetCallback(item_outros, "ACTION", (Icallback)relatorioOutros);
+    IupSetCallback(item_anual, "ACTION", (Icallback)pedeAno);
 
     /*/////////////////////////// MENU ////////////////////////////////////*/
 
     //mensagem inicial
 
-    char nome[100] = "Bem-vindo(a), ";
+    char nome[100] = "Bem-vindo(a) à sua carteira pessoal, ";
     pegaNome(nome);
-    strcat(nome, ", à sua carteira pessoal!");
+    strcat(nome, "!");
 
     IupVar.label = IupLabel(nome);
     IupSetAttribute(IupVar.label, "FONTSIZE", "20");
+
+    Ihandle *btn2 = IupButton("Consultar saldo", NULL);
+    IupSetAttribute(btn2, "FONTSIZE", "15");
+    IupSetCallback(btn2, "ACTION", consultaSaldo);
 
     //botão saída
     IupVar.button_exit = IupButton("SAIR", NULL);
@@ -624,6 +931,7 @@ int TelaInicial(int argc, char **argv){
     //vbox
     IupVar.vbox = IupVbox(
             IupVar.label,
+            btn2,
             IupVar.button_exit,
             NULL);
     IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
@@ -640,7 +948,7 @@ int TelaInicial(int argc, char **argv){
 
     IupMainLoop();
 
-    IupClose();
+    //IupClose();
     return EXIT_SUCCESS;
 }
 
@@ -670,7 +978,7 @@ void CadastraUsuario(int argc, char **argv){
 
     IupOpen(&argc, &argv);
 
-    IupVar.label = IupLabel("Olá, novo usuário(a), cadastre-se para desfrutar de nossos serviços : \n\n\n");
+    IupVar.label = IupLabel("Olá, novo usuário(a), cadastre-se para desfrutar de nossos serviços!\n\n\n");
     IupSetAttribute(IupVar.label, "FONT", "DEFAULTFONT , 14");
     labelNome = IupLabel("Insira seu nome :");
     IupSetAttribute(labelNome, "FONT", "DEFAULTFONT , 12");
@@ -714,8 +1022,6 @@ void CadastraUsuario(int argc, char **argv){
 
     IupClose();
     EXIT_SUCCESS;
-
-    TelaInicial(argc, argv);
 }
 
 int contaDigitos(unsigned long long int valor){
@@ -814,5 +1120,6 @@ int main(int argc, char **argv){
         //não cadastrado
     else if(globalVar==2){
         CadastraUsuario(argc, argv);
+        TelaInicial(argc, argv);
     }
 }
