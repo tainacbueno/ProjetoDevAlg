@@ -37,24 +37,6 @@ struct guardaChar{
     char desc[100];
 }dados;
 
-/*/////funções/////*/
-int botao_exit(Ihandle *self);
-void aviso(char titulo[], char msgm[]);
-int existeArq(char caminho[]);
-int pegaDados(Ihandle *self);
-int deposita(int argc, char **argv);
-int saque(int argc, char **argv);
-void pegaNome(char nome[255]);
-int TelaInicial(int argc, char **argv);
-int analisaCadastro(Ihandle *entrada);
-void CadastraUsuario(int argc, char **argv);
-int contaDigitos(unsigned long long int valor);
-int analisaCPF(Ihandle *inserecpf);
-void pedeCPF(int argc, char **argv);
-void atualizaGeral(int x, double y);
-
-/*/////funções/////*/
-
 int botao_exit(Ihandle *self){
     IupVar.dlg = IupMessageDlg();
 
@@ -93,7 +75,7 @@ int existeArq(char caminho[]){
     return 1;
 }
 
-void atualizaGeral(int num, double valor){
+int atualizaGeral(int num, double valor){
     if(num == 0) {
         saldo += valor;
         //printf("%lf\n", saldo);
@@ -110,15 +92,42 @@ void atualizaGeral(int num, double valor){
     FILE *arq = fopen(caminho, "w");
     fprintf(arq, "%s\n%.2lf", nomeAtual, saldo);
     fclose(arq);
+
+    return EXIT_SUCCESS;
+}
+
+int ehMaior(struct guardaChar a, struct guardaChar b){
+    if(atoi(a.ano) == atoi(b.ano)){
+        if(atoi(a.mes) == atoi(b.mes))
+            return atoi(a.dia) < atoi(b.dia);
+        return atoi(a.mes) < atoi(b.mes);
+    }
+    return atoi(a.ano) < atoi(b.ano);
+}
+void troca(struct guardaChar *a, struct guardaChar *b){
+    struct guardaChar temp = *a;
+    *a = *b;
+    *b = temp;
+}
+void ordena(struct guardaChar *guarda, int n){
+    int i, j;
+
+    for ( i = 0; i < n-1; ++i) {
+        for (j = 0; j <n-1 ; ++j) {
+            if(ehMaior(guarda[j], guarda[j+1]) == 1)
+                troca(&guarda[j], &guarda[j+1]);
+        }
+    }
 }
 
 void imprimeRelatorio(struct guardaChar guarda[1000], int i){
+    ordena(guarda, i);
     Ihandle *texto = IupText(NULL);
     IupSetAttribute(texto, "MULTILINE", "YES");
     IupSetAttribute(texto, "READONLY", "YES");
     IupSetAttribute(texto, "SIZE", "200x80");
 
-    IupVar.label = IupLabel("Relátorio referente a gastos com moradia:\n\n");
+    IupVar.label = IupLabel("Relátorio total:\n\n");
     IupSetAttribute(IupVar.label, "FONTSIZE", "15");
 
     IupVar.vbox = IupVbox(IupVar.label, texto, NULL);
@@ -132,15 +141,20 @@ void imprimeRelatorio(struct guardaChar guarda[1000], int i){
     int j;
 
     char letra[9];
+    char prom[4];
 
     for (j = 0; j < i; ++j) {
-        if (guarda[j].tipo == 'd')
+        if (guarda[j].tipo == 'd') {
             strcpy(letra, "depositou");
-        else
+            strcpy(prom, "de");
+        }
+        else {
             strcpy(letra, "sacou");
+            strcpy(prom, "para");
+        }
 
         char buf[1000];
-        snprintf(buf, sizeof buf, "Em %s/%s/%s %s R$%s para %s\n\n", guarda[j].dia, guarda[j].mes, guarda[j].ano, letra, guarda[j].valor,
+        snprintf(buf, sizeof buf, "Em %s/%s/%s %s R$%s %s %s\n\n", guarda[j].dia, guarda[j].mes, guarda[j].ano, letra, guarda[j].valor, prom,
                  guarda[j].desc);
         IupSetAttribute(texto, "INSERT", buf);
     }
@@ -152,7 +166,6 @@ void imprimeRelatorio(struct guardaChar guarda[1000], int i){
 
 int relatorioMoradia(){
     struct guardaChar guarda[1000];
-    struct guardaChar var;
     char caminho[maxCaminho];
     int i = 0;
 
@@ -179,7 +192,167 @@ int relatorioMoradia(){
 
     int a = IupMainLoopLevel();
     printf("relatorioM: %d\n", a);
-    IupClose();
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+
+int relatorioEstudo(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/estudo.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            guarda[i] = dados;
+            i++;
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        imprimeRelatorio(guarda, i);
+    }
+    else{
+        aviso("Erro", "Não há nada registrado em Estudo. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioE: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+
+int relatorioTrabalho(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/trabalho.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            guarda[i] = dados;
+            i++;
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        imprimeRelatorio(guarda, i);
+    }
+    else{
+        aviso("Erro", "Não há nada registrado em Trabalho. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioTrab: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+
+int relatorioOutros(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/outros.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            guarda[i] = dados;
+            i++;
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        imprimeRelatorio(guarda, i);
+    }
+    else{
+        aviso("Erro", "Não há nada registrado em Outros. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioO: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+
+int relatorioAlimentacao(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/alimentacao.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            guarda[i] = dados;
+            i++;
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        imprimeRelatorio(guarda, i);
+    }
+    else{
+        aviso("Erro", "Não há nada registrado em Alimentação. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioA: %d\n", a);
+    //IupClose();
+    return EXIT_SUCCESS;
+}
+
+int relatorioTransporte(){
+    struct guardaChar guarda[1000];
+    char caminho[maxCaminho];
+    int i = 0;
+
+    strcpy(caminho, pessoaAtual);
+    strcat(caminho, "/transporte.txt");
+
+    FILE *arq;
+
+    if(fopen(caminho, "r")){
+        arq = fopen(caminho, "r");
+
+        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
+        {
+            guarda[i] = dados;
+            i++;
+            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
+        }
+        fclose(arq);
+        imprimeRelatorio(guarda, i);
+    }
+    else{
+        aviso("Erro", "Não há nada registrado em Transporte. Deposite ou saque e tente novamente.");
+    }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioT: %d\n", a);
+    //IupClose();
     return EXIT_SUCCESS;
 }
 
@@ -408,7 +581,8 @@ int deposita(int argc, char **argv){
 
     //IupDestroy(IupVar.dlg);
     //return EXIT_SUCCESS;
-    IUP_IGNORE;
+    //IUP_CLOSE;
+    //return IUP_DEFAULT;
 }
 
 int saque(int argc, char **argv){
@@ -434,7 +608,7 @@ int saque(int argc, char **argv){
 
     varMov.tipo = IupLabel("Categoria: ");
 
-    varMov.descricaoL = IupLabel("Descrição: ");
+    varMov.descricaoL = IupLabel("Descrição (no máximo uma palavra): ");
 
     //lista
     varMov.list = IupList(NULL);
@@ -516,13 +690,14 @@ int saque(int argc, char **argv){
 
     IupVar.dlg = IupDialog(IupVar.vbox);
     IupSetAttribute(IupVar.dlg, "TITLE", "Sacar");
+    //IupSetAttribute(IupVar.dlg, "IupExitLoop", "NO");
     IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     /*/////////////////////// ITENS /////////////////////////////*/
 
     IupMainLoop();
-
-    return IUP_CLOSE;
+    int a = IupMainLoopLevel();
+    printf("saca: %d\n", a);
 }
 
 void pegaNome(char nome[255]){
@@ -559,11 +734,6 @@ int consultaSaldo(){
     IupVar.label = IupLabel(guardaSaldo);
     IupSetAttribute(IupVar.label, "FONTSIZE", "10");
     IupMessage("Saldo", guardaSaldo);
-
-    IupMainLoop();
-
-    IupClose();
-    return EXIT_SUCCESS;
 }
 
 int TelaInicial(int argc, char **argv){
@@ -571,7 +741,7 @@ int TelaInicial(int argc, char **argv){
 
     Ihandle *transacoes_menu, *movimenta_menu;
     Ihandle *item_coloca, *item_retira;
-    Ihandle *item_moradia, *item_estudo, *item_tranporte, *item_alimentcao, *item_trabalho;
+    Ihandle *item_moradia, *item_estudo, *item_tranporte, *item_alimentcao, *item_trabalho, *item_outros;
     Ihandle *sub_menu_transacoes, *sub_menu_movimenta, *menu;
 
     IupOpen(&argc, &argv);
@@ -586,6 +756,7 @@ int TelaInicial(int argc, char **argv){
     item_tranporte = IupItem("Transporte", NULL);
     item_alimentcao = IupItem("Alimentação", NULL);
     item_trabalho = IupItem("Trabalho", NULL);
+    item_outros = IupItem("Outros", NULL);
 
     transacoes_menu = IupMenu(
             item_coloca,
@@ -599,6 +770,7 @@ int TelaInicial(int argc, char **argv){
             item_tranporte,
             item_alimentcao,
             item_trabalho,
+            item_outros,
             NULL
     );
 
@@ -613,10 +785,11 @@ int TelaInicial(int argc, char **argv){
     IupSetCallback(item_coloca, "ACTION", (Icallback)deposita);
     IupSetCallback(item_retira, "ACTION", (Icallback)saque);
     IupSetCallback(item_moradia, "ACTION", (Icallback)relatorioMoradia);
-    /*IupSetCallback(item_estudo, "ACTION", (Icallback)relatorioEstudo);
-    IupSetCallback(item_tranporte, "ACTION", (Icallback)relatorioTransp);
-    IupSetCallback(item_alimentcao, "ACTION", (Icallback)relatorioAliment);
-    IupSetCallback(item_trabalho, "ACTION", (Icallback)relatorioTrabalho);*/
+    IupSetCallback(item_estudo, "ACTION", (Icallback)relatorioEstudo);
+    IupSetCallback(item_tranporte, "ACTION", (Icallback)relatorioTransporte);
+    IupSetCallback(item_alimentcao, "ACTION", (Icallback)relatorioAlimentacao);
+    IupSetCallback(item_trabalho, "ACTION", (Icallback)relatorioTrabalho);
+    IupSetCallback(item_outros, "ACTION", (Icallback)relatorioOutros);
 
     /*/////////////////////////// MENU ////////////////////////////////////*/
 
