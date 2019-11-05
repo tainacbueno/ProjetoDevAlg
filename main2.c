@@ -124,8 +124,11 @@ void ordena(struct guardaChar *guarda, int n){
     }
 }
 
-void imprimeRelatorio(struct guardaChar guarda[1000], int i){
+int imprimeRelatorio(struct guardaChar guarda[1000], int i){
     ordena(guarda, i);
+
+    globalAno = "0";
+
     Ihandle *texto = IupText(NULL);
     IupSetAttribute(texto, "MULTILINE", "YES");
     IupSetAttribute(texto, "READONLY", "YES");
@@ -167,6 +170,8 @@ void imprimeRelatorio(struct guardaChar guarda[1000], int i){
     IupExitLoop();
     int a = IupMainLoopLevel();
     printf("imprimeRelat: %d\n", a);
+
+    return IUP_CLOSE;
 }
 
 int relatorioMoradia(){
@@ -201,7 +206,7 @@ int relatorioMoradia(){
         if(strcmp(globalAno,"0") == 0)
             imprimeRelatorio(guarda, i);
     }
-    else if (globalAno==0){
+    else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
 
@@ -242,7 +247,7 @@ int relatorioEstudo(){
         if(strcmp(globalAno,"0") == 0)
             imprimeRelatorio(guarda, i);
     }
-    else if (globalAno==0){
+    else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Estudo. Deposite ou saque e tente novamente.");
     }
 
@@ -283,7 +288,7 @@ int relatorioTrabalho(){
         if(strcmp(globalAno,"0") == 0)
             imprimeRelatorio(guarda, i);
     }
-    else if (globalAno==0){
+    else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Trabalho. Deposite ou saque e tente novamente.");
     }
 
@@ -324,7 +329,7 @@ int relatorioOutros(){
         if(strcmp(globalAno,"0") == 0)
             imprimeRelatorio(guarda, i);
     }
-    else if (globalAno==0){
+    else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Outros. Deposite ou saque e tente novamente.");
     }
 
@@ -354,7 +359,7 @@ int relatorioAlimentacao(){
             }
             else{
                 if(strcmp(globalAno, dados.ano) == 0){
-                    printf("MORADIAAAAA\n");
+                    //printf("MORADIAAAAA\n");
                     geral[posGeral] = dados;
                     posGeral++;
                 }
@@ -365,7 +370,7 @@ int relatorioAlimentacao(){
         if(strcmp(globalAno,"0") == 0)
             imprimeRelatorio(guarda, i);
     }
-    else if (globalAno==0){
+    else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Alimentação. Deposite ou saque e tente novamente.");
     }
 
@@ -406,7 +411,7 @@ int relatorioTransporte(){
         if(strcmp(globalAno,"0") == 0)
             imprimeRelatorio(guarda, i);
     }
-    else if (globalAno==0){
+    else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Transporte. Deposite ou saque e tente novamente.");
     }
 
@@ -417,8 +422,11 @@ int relatorioTransporte(){
 }
 
 int pegaAno(Ihandle *self){
+    printf("WWW");
     Ihandle *a = IupGetDialogChild(self, "ANO");
-    globalAno = IupGetAttribute(a, "VALUE");
+    char* b = IupGetAttribute(a, "VALUE");
+    globalAno = b;
+    posGeral = 0;
 
     relatorioMoradia();
     relatorioEstudo();
@@ -429,10 +437,7 @@ int pegaAno(Ihandle *self){
 
     imprimeRelatorio(geral, posGeral);
 
-    globalAno = "0";
-    posGeral = 0;
-
-    return EXIT_SUCCESS;
+    return IUP_CLOSE    ;
 }
 int pedeAno(int argc, char **argv){
     Ihandle *btconfirma, *insereano;
@@ -464,8 +469,7 @@ int pedeAno(int argc, char **argv){
 
     IupClose();
 
-    return IUP_CLOSE;
-
+    EXIT_SUCCESS;
 }
 
 int escreveArquivo(struct info dados, int op, int num){
