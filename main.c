@@ -116,9 +116,14 @@ void imprimeRelatorio(struct guardaChar guarda[1000], int i){
     Ihandle *texto = IupText(NULL);
     IupSetAttribute(texto, "MULTILINE", "YES");
     IupSetAttribute(texto, "READONLY", "YES");
-    IupSetAttribute(texto, "SIZE", "200x200");
+    IupSetAttribute(texto, "SIZE", "200x80");
 
-    IupVar.vbox = IupVbox(texto, NULL);
+    IupVar.label = IupLabel("Relátorio referente a gastos com moradia:\n\n");
+    IupSetAttribute(IupVar.label, "FONTSIZE", "15");
+
+    IupVar.vbox = IupVbox(IupVar.label, texto, NULL);
+    IupSetAttribute(IupVar.vbox, "MARGIN", "60x60");
+    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
 
     IupVar.dlg = IupDialog(IupVar.vbox);
 
@@ -135,11 +140,14 @@ void imprimeRelatorio(struct guardaChar guarda[1000], int i){
             strcpy(letra, "sacou");
 
         char buf[1000];
-        snprintf(buf, sizeof buf, "Em %s/%s/%s %s R$%s para %s\n", guarda[j].dia, guarda[j].mes, guarda[j].ano, letra, guarda[j].valor,
+        snprintf(buf, sizeof buf, "Em %s/%s/%s %s R$%s para %s\n\n", guarda[j].dia, guarda[j].mes, guarda[j].ano, letra, guarda[j].valor,
                  guarda[j].desc);
         IupSetAttribute(texto, "INSERT", buf);
     }
     IupMainLoop();
+
+    int a = IupMainLoopLevel();
+    printf("imprimeRelat: %d\n", a);
 }
 
 int relatorioMoradia(){
@@ -168,9 +176,14 @@ int relatorioMoradia(){
     else{
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
+
+    int a = IupMainLoopLevel();
+    printf("relatorioM: %d\n", a);
+    IupClose();
+    return EXIT_SUCCESS;
 }
 
-void escreveArquivo(struct info dados, int op, int num){
+int escreveArquivo(struct info dados, int op, int num){
     int verif;
     FILE *file;
     char caminho[maxCaminho];
@@ -220,6 +233,11 @@ void escreveArquivo(struct info dados, int op, int num){
         fclose(file);
         //printf("n existe e deu certo\n");
     }
+
+    int a = IupMainLoopLevel();
+    printf("escreveArq: %d\n", a);
+    /*IupClose();
+    return EXIT_SUCCESS;*/
 }
 
 int pegaDados(Ihandle *self){
@@ -267,6 +285,11 @@ int pegaDados(Ihandle *self){
         aviso("Sucesso", "Operação realizada!");
         //IupClose();
     }
+
+    int a = IupMainLoopLevel();
+    printf("pegaDados: %d\n", a);
+
+    return IUP_CLOSE;
 }
 
 int deposita(int argc, char **argv){
@@ -374,13 +397,18 @@ int deposita(int argc, char **argv){
 
     IupVar.dlg = IupDialog(IupVar.vbox);
     IupSetAttribute(IupVar.dlg, "TITLE", "Depositar");
+    //IupSetAttribute(IupVar.dlg, "IupExitLoop", "NO");
     IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     /*/////////////////////// ITENS /////////////////////////////*/
 
     IupMainLoop();
+    int a = IupMainLoopLevel();
+    printf("deposita: %d\n", a);
 
-    return IUP_CLOSE;
+    //IupDestroy(IupVar.dlg);
+    //return EXIT_SUCCESS;
+    IUP_IGNORE;
 }
 
 int saque(int argc, char **argv){
@@ -524,6 +552,20 @@ void pegaNome(char nome[255]){
     strcat(nome, nomeAtual);
 };
 
+int consultaSaldo(){
+    char guardaSaldo[1020];
+    snprintf(guardaSaldo, sizeof guardaSaldo, "%s %.2lf", "Seu saldo atual é de R$", saldo);
+
+    IupVar.label = IupLabel(guardaSaldo);
+    IupSetAttribute(IupVar.label, "FONTSIZE", "10");
+    IupMessage("Saldo", guardaSaldo);
+
+    IupMainLoop();
+
+    IupClose();
+    return EXIT_SUCCESS;
+}
+
 int TelaInicial(int argc, char **argv){
     //printf("%s", pessoaAtual);
 
@@ -580,9 +622,13 @@ int TelaInicial(int argc, char **argv){
 
     //mensagem inicial
 
-    char nome[100] = "Bem-vindo(a), ";
+    char nome[100] = "Bem-vindo(a) à sua carteira pessoal, ";
     pegaNome(nome);
-    strcat(nome, ", à sua carteira pessoal!");
+    strcat(nome, "!");
+
+    Ihandle *btn2 = IupButton("Consultar saldo", NULL);
+    IupSetAttribute(btn2, "FONTSIZE", "15");
+    IupSetCallback(btn2, "ACTION", consultaSaldo);
 
     IupVar.label = IupLabel(nome);
     IupSetAttribute(IupVar.label, "FONTSIZE", "20");
@@ -595,6 +641,7 @@ int TelaInicial(int argc, char **argv){
     //vbox
     IupVar.vbox = IupVbox(
             IupVar.label,
+            btn2,
             IupVar.button_exit,
             NULL);
     IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
@@ -611,7 +658,7 @@ int TelaInicial(int argc, char **argv){
 
     IupMainLoop();
 
-    IupClose();
+    //IupClose();
     return EXIT_SUCCESS;
 }
 
@@ -641,7 +688,7 @@ void CadastraUsuario(int argc, char **argv){
 
     IupOpen(&argc, &argv);
 
-    IupVar.label = IupLabel("Olá, novo usuário(a), cadastre-se para desfrutar de nossos serviços : \n\n\n");
+    IupVar.label = IupLabel("Olá, novo usuário(a), cadastre-se para desfrutar de nossos serviços!\n\n\n");
     IupSetAttribute(IupVar.label, "FONT", "DEFAULTFONT , 14");
     labelNome = IupLabel("Insira seu nome :");
     IupSetAttribute(labelNome, "FONT", "DEFAULTFONT , 12");
@@ -685,8 +732,6 @@ void CadastraUsuario(int argc, char **argv){
 
     IupClose();
     EXIT_SUCCESS;
-
-    TelaInicial(argc, argv);
 }
 
 int contaDigitos(unsigned long long int valor){
@@ -785,5 +830,6 @@ int main(int argc, char **argv){
     //não cadastrado
     else if(globalVar==2){
         CadastraUsuario(argc, argv);
+        TelaInicial(argc, argv);
     }
 }
