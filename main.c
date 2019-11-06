@@ -45,7 +45,6 @@ int botao_exit(Ihandle *self){
     IupVar.dlg = IupMessageDlg();
 
     IupSetAttribute(IupVar.dlg, "DIALOGTYPE", "WARNING");
-    //IupSetAttribute(dlg, "TITLE", "Saída");
     IupSetAttribute(IupVar.dlg, "BUTTONS", "OKCANCEL");
     IupSetAttribute(IupVar.dlg, "VALUE", "Tem certeza que desaja sair?");
 
@@ -175,8 +174,6 @@ void imprimeRelatorio(struct guardaChar guarda[1000], int i, int relat){
     IupSetAttribute(texto, "CARET", "1");
     IupMainLoop();
     IupExitLoop();
-    /*int a = IupMainLoopLevel();
-    printf("imprimeRelat: %d\n", a);*/
 }
 
 int relatorioMoradia(){
@@ -205,7 +202,6 @@ int relatorioMoradia(){
                     posGeral++;
                 }
             }
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         if(strcmp(globalAno,"0") == 0)
@@ -214,10 +210,6 @@ int relatorioMoradia(){
     else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
-
-    /*int a = IupMainLoopLevel();
-    printf("relatorioM: %d\n", a);
-    //IupClose();*/
     return EXIT_SUCCESS;
 }
 int relatorioEstudo(){
@@ -246,7 +238,6 @@ int relatorioEstudo(){
                     posGeral++;
                 }
             }
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         if(strcmp(globalAno,"0") == 0)
@@ -255,10 +246,6 @@ int relatorioEstudo(){
     else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Estudo. Deposite ou saque e tente novamente.");
     }
-
-    /*int a = IupMainLoopLevel();
-    printf("relatorioE: %d\n", a);
-    //IupClose();*/
     return EXIT_SUCCESS;
 }
 int relatorioTrabalho(){
@@ -296,10 +283,6 @@ int relatorioTrabalho(){
     else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Trabalho. Deposite ou saque e tente novamente.");
     }
-
-    /*int a = IupMainLoopLevel();
-    printf("relatorioTrab: %d\n", a);
-    //IupClose();*/
     return EXIT_SUCCESS;
 }
 int relatorioOutros(){
@@ -328,7 +311,6 @@ int relatorioOutros(){
                     posGeral++;
                 }
             }
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         if(strcmp(globalAno,"0") == 0)
@@ -337,10 +319,6 @@ int relatorioOutros(){
     else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Outros. Deposite ou saque e tente novamente.");
     }
-
-    /*int a = IupMainLoopLevel();
-    printf("relatorioO: %d\n", a);
-    //IupClose();*/
     return EXIT_SUCCESS;
 }
 int relatorioAlimentacao(){
@@ -369,7 +347,6 @@ int relatorioAlimentacao(){
                     posGeral++;
                 }
             }
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         if(strcmp(globalAno,"0") == 0)
@@ -378,10 +355,6 @@ int relatorioAlimentacao(){
     else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Alimentação. Deposite ou saque e tente novamente.");
     }
-
-    /*int a = IupMainLoopLevel();
-    printf("relatorioA: %d\n", a);
-    IupClose();*/
     return EXIT_SUCCESS;
 }
 int relatorioTransporte(){
@@ -410,7 +383,6 @@ int relatorioTransporte(){
                     posGeral++;
                 }
             }
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         if(strcmp(globalAno,"0") == 0)
@@ -419,10 +391,6 @@ int relatorioTransporte(){
     else if (strcmp(globalAno,"0") == 0){
         aviso("Erro", "Não há nada registrado em Transporte. Deposite ou saque e tente novamente.");
     }
-
-    /*int a = IupMainLoopLevel();
-    printf("relatorioT: %d\n", a);
-    IupClose();*/
     return EXIT_SUCCESS;
 }
 
@@ -446,8 +414,6 @@ int moradiaMes(char mes[], char ano[]){
                 guarda[i] = dados;
                 i++;
             }
-
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         imprimeRelatorio(guarda, i, 2);
@@ -455,10 +421,6 @@ int moradiaMes(char mes[], char ano[]){
     else{
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
-
-    int a = IupMainLoopLevel();
-    printf("relatorioM: %d\n", a);
-    //IupClose();
     return EXIT_SUCCESS;
 }
 int estudoMes(char mes[], char ano[]){
@@ -481,8 +443,6 @@ int estudoMes(char mes[], char ano[]){
                 guarda[posGeral] = dados;
                 i++;
             }
-
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         imprimeRelatorio(guarda, i, 2);
@@ -490,10 +450,6 @@ int estudoMes(char mes[], char ano[]){
     else{
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
-
-    int a = IupMainLoopLevel();
-    printf("relatorioM: %d\n", a);
-    //IupClose();
     return EXIT_SUCCESS;
 }
 int trabalhoMes(char mes[], char ano[]){
@@ -516,8 +472,6 @@ int trabalhoMes(char mes[], char ano[]){
                 guarda[posGeral] = dados;
                 i++;
             }
-
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         imprimeRelatorio(guarda, i, 2);
@@ -525,10 +479,6 @@ int trabalhoMes(char mes[], char ano[]){
     else{
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
-
-    int a = IupMainLoopLevel();
-    printf("relatorioM: %d\n", a);
-    //IupClose();
     return EXIT_SUCCESS;
 }
 int outrosMes(char mes[], char ano[]){
@@ -551,8 +501,6 @@ int outrosMes(char mes[], char ano[]){
                 guarda[posGeral] = dados;
                 i++;
             }
-
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         imprimeRelatorio(guarda, i, 2);
@@ -560,10 +508,6 @@ int outrosMes(char mes[], char ano[]){
     else{
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
-
-    int a = IupMainLoopLevel();
-    printf("relatorioM: %d\n", a);
-    //IupClose();
     return EXIT_SUCCESS;
 }
 int alimentacaoMes(char mes[], char ano[]){
@@ -586,8 +530,6 @@ int alimentacaoMes(char mes[], char ano[]){
                 guarda[posGeral] = dados;
                 i++;
             }
-
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         imprimeRelatorio(guarda, i, 2);
@@ -595,10 +537,6 @@ int alimentacaoMes(char mes[], char ano[]){
     else{
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
-
-    int a = IupMainLoopLevel();
-    printf("relatorioM: %d\n", a);
-    //IupClose();
     return EXIT_SUCCESS;
 }
 int transporteMes(char mes[], char ano[]){
@@ -621,8 +559,6 @@ int transporteMes(char mes[], char ano[]){
                 guarda[posGeral] = dados;
                 i++;
             }
-
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         imprimeRelatorio(guarda, i, 2);
@@ -630,10 +566,6 @@ int transporteMes(char mes[], char ano[]){
     else{
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
     }
-
-    int a = IupMainLoopLevel();
-    printf("relatorioM: %d\n", a);
-    //IupClose();
     return EXIT_SUCCESS;
 }
 
@@ -663,305 +595,6 @@ int pegaMes(Ihandle *self){
 
     return EXIT_SUCCESS;
 }
-int pedeMes(int argc, char **argv){
-    IupOpen(&argc, &argv);
-
-    IupVar.label = IupLabel("Digite o mês:\n");
-    IupSetAttribute(IupVar.label, "FONTSIZE", "15");
-
-    //transformar int em char
-
-    IupVar.btn = IupButton("Enviar", NULL);
-    IupSetCallback(IupVar.btn, "ACTION", (Icallback) pegaMes);
-    IupSetAttribute(IupVar.btn, "FONTSIZE", "10");
-
-    varMov.anoT = IupText(NULL);
-    IupSetAttribute(varMov.anoT, "VALUE", "");
-    IupSetAttribute(varMov.anoT, "NAME", "MES");
-    IupSetAttribute(varMov.anoT, "SIZE", "30");
-    IupSetAttribute(varMov.anoT, "FONTSIZE", "12");
-
-    IupVar.vbox = IupVbox(IupVar.label, varMov.anoT, IupVar.btn, NULL);
-    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
-    IupSetAttribute(IupVar.vbox, "GAP", "10");
-    IupSetAttribute(IupVar.vbox, "MARGIN", "60x60");
-    IupSetAttribute(IupVar.vbox, "GAP", "20");
-    IupVar.dlg = IupDialog(IupVar.vbox);
-    IupSetAttribute(IupVar.dlg, "TITLE", "Carteira Pessoal");
-
-    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
-
-    IupMainLoop();
-
-    IupClose();
-    return IUP_CLOSE;
-}
-
-/* ----------------- negocio feio ------------------------------*/
-int pegaMoradia(int argc, char **argv){
-    Ihandle *ih;
-    int pos = IupGetChildPos(IupGetParent(ih), ih);
-    if (pos == 0)
-        relatorioMoradia();
-    else
-        pedeMes(argc, argv);
-    return EXIT_SUCCESS;
-}
-int chamaMoradia(){
-    Ihandle *toggle, *toggle2, *teste;
-
-    toggle = IupToggle("Relatório Anual", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
-    IupSetAttribute(toggle, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "VALUE", "0");
-
-    IupSetCallback(toggle, "ACTION", (Icallback)pegaMoradia);
-
-
-    toggle2 = IupToggle("Relatório Mensal", NULL);
-    IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "NAME", "teste");
-
-    IupSetCallback(toggle2, "ACTION", (Icallback )pegaMoradia);
-
-    Ihandle *lbl2 = IupLabel("\n\n");
-    IupVar.label = IupLabel("\n\n\n");
-    Ihandle *lbl3 = IupLabel("\n\n");
-
-    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
-    //IupSetAttribute(IupVar.vbox, "SIZE", "100");
-    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
-    IupVar.dlg = IupDialog(IupVar.vbox);
-    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
-
-    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
-
-    IupMainLoop();
-
-    IUP_CLOSE;
-}
-
-int pegaEstudo(int argc, char **argv){
-    Ihandle *ih;
-    int pos = IupGetChildPos(IupGetParent(ih), ih);
-    if (pos == 0)
-        relatorioMoradia();
-    else
-        pedeMes(argc, argv);
-    return EXIT_SUCCESS;
-}
-int chamaEstudo(){
-
-    Ihandle *toggle, *toggle2, *teste;
-
-    toggle = IupToggle("Relatório Anual", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
-    IupSetAttribute(toggle, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "VALUE", "0");
-
-    IupSetCallback(toggle, "ACTION", (Icallback)pegaEstudo);
-
-
-    toggle2 = IupToggle("Relatório Mensal", NULL);
-    IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "NAME", "teste");
-
-    IupSetCallback(toggle2, "ACTION", (Icallback )pegaEstudo);
-
-    Ihandle *lbl2 = IupLabel("\n\n");
-    IupVar.label = IupLabel("\n\n\n");
-    Ihandle *lbl3 = IupLabel("\n\n");
-
-    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
-    //IupSetAttribute(IupVar.vbox, "SIZE", "100");
-    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
-    IupVar.dlg = IupDialog(IupVar.vbox);
-    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
-
-    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
-
-    IupMainLoop();
-
-    IUP_CLOSE;
-}
-
-int pegaTrabalho(int argc, char **argv){
-    Ihandle *ih;
-    int pos = IupGetChildPos(IupGetParent(ih), ih);
-    if (pos == 0)
-        relatorioMoradia();
-    else
-        pedeMes(argc, argv);
-    return EXIT_SUCCESS;
-}
-int chamaTrabalho(){
-
-    Ihandle *toggle, *toggle2, *teste;
-
-    toggle = IupToggle("Relatório Anual", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
-    IupSetAttribute(toggle, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "VALUE", "0");
-
-    IupSetCallback(toggle, "ACTION", (Icallback)pegaTrabalho);
-
-
-    toggle2 = IupToggle("Relatório mensal", NULL);
-    IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "NAME", "teste");
-
-    IupSetCallback(toggle2, "ACTION", (Icallback )pegaTrabalho);
-
-    Ihandle *lbl2 = IupLabel("\n\n");
-    IupVar.label = IupLabel("\n\n\n");
-    Ihandle *lbl3 = IupLabel("\n\n");
-
-    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
-    //IupSetAttribute(IupVar.vbox, "SIZE", "100");
-    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
-    IupVar.dlg = IupDialog(IupVar.vbox);
-    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
-
-    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
-
-    IupMainLoop();
-
-    IUP_CLOSE;
-}
-
-int pegaOutros(int argc, char **argv){
-    Ihandle *ih;
-    int pos = IupGetChildPos(IupGetParent(ih), ih);
-    if (pos == 0)
-        relatorioMoradia();
-    else
-        pedeMes(argc, argv);
-    return EXIT_SUCCESS;
-}
-int chamaOutros(){
-
-    Ihandle *toggle, *toggle2, *teste;
-
-    toggle = IupToggle("Relatório Anual", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
-    IupSetAttribute(toggle, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "VALUE", "0");
-
-    IupSetCallback(toggle, "ACTION", (Icallback)pegaOutros);
-
-
-    toggle2 = IupToggle("Relatório mensal", NULL);
-    IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "NAME", "teste");
-
-    IupSetCallback(toggle2, "ACTION", (Icallback )pegaOutros);
-
-    Ihandle *lbl2 = IupLabel("\n\n");
-    IupVar.label = IupLabel("\n\n\n");
-    Ihandle *lbl3 = IupLabel("\n\n");
-
-    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
-    //IupSetAttribute(IupVar.vbox, "SIZE", "100");
-    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
-    IupVar.dlg = IupDialog(IupVar.vbox);
-    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
-
-    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
-
-    IupMainLoop();
-
-    IUP_CLOSE;
-}
-
-int pegaAlimentacao(int argc, char **argv){
-    Ihandle *ih;
-    int pos = IupGetChildPos(IupGetParent(ih), ih);
-    if (pos == 0)
-        relatorioMoradia();
-    else
-        pedeMes(argc, argv);
-    return EXIT_SUCCESS;
-}
-int chamaAlimentacao(){
-
-    Ihandle *toggle, *toggle2, *teste;
-
-    toggle = IupToggle("Relatório Anual", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
-    IupSetAttribute(toggle, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "VALUE", "0");
-
-    IupSetCallback(toggle, "ACTION", (Icallback) pegaAlimentacao);
-
-
-    toggle2 = IupToggle("Relatório mensal", NULL);
-    IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "NAME", "teste");
-
-    IupSetCallback(toggle2, "ACTION", (Icallback) pegaAlimentacao);
-
-    Ihandle *lbl2 = IupLabel("\n\n");
-    IupVar.label = IupLabel("\n\n\n");
-    Ihandle *lbl3 = IupLabel("\n\n");
-
-    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
-    //IupSetAttribute(IupVar.vbox, "SIZE", "100");
-    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
-    IupVar.dlg = IupDialog(IupVar.vbox);
-    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
-
-    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
-
-    IupMainLoop();
-
-    IUP_CLOSE;
-}
-
-int pegaTransporte(int argc, char **argv){
-    Ihandle *ih;
-    int pos = IupGetChildPos(IupGetParent(ih), ih);
-    if (pos == 0)
-        relatorioMoradia();
-    else
-        pedeMes(argc, argv);
-    return EXIT_SUCCESS;
-}
-int chamaTrasporte(){
-
-    Ihandle *toggle, *toggle2, *teste;
-
-    toggle = IupToggle("Relatório Anual", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
-    IupSetAttribute(toggle, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "VALUE", "0");
-
-    IupSetCallback(toggle, "ACTION", (Icallback)pegaTransporte);
-
-
-    toggle2 = IupToggle("Relatório mensal", NULL);
-    IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "NAME", "teste");
-
-    IupSetCallback(toggle2, "ACTION", (Icallback )pegaTransporte);
-
-    Ihandle *lbl2 = IupLabel("\n\n");
-    IupVar.label = IupLabel("\n\n\n");
-    Ihandle *lbl3 = IupLabel("\n\n");
-
-    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
-    //IupSetAttribute(IupVar.vbox, "SIZE", "100");
-    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
-    IupVar.dlg = IupDialog(IupVar.vbox);
-    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
-
-    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
-
-    IupMainLoop();
-
-    IUP_CLOSE;
-}
-/*--------------------------------------------------------*/
-
 int pegaAno(Ihandle *self){
     Ihandle *a = IupGetDialogChild(self, "ANO");
     globalAno = IupGetAttribute(a, "VALUE");
@@ -1014,6 +647,298 @@ int pedeAno(int argc, char **argv){
     return IUP_CLOSE;
 }
 
+int pedeMes(int argc, char **argv){
+    IupOpen(&argc, &argv);
+
+    IupVar.label = IupLabel("Digite o mês:\n");
+    IupSetAttribute(IupVar.label, "FONTSIZE", "15");
+
+    //transformar int em char
+
+    IupVar.btn = IupButton("Enviar", NULL);
+    IupSetCallback(IupVar.btn, "ACTION", (Icallback) pegaMes);
+    IupSetAttribute(IupVar.btn, "FONTSIZE", "10");
+
+    varMov.anoT = IupText(NULL);
+    IupSetAttribute(varMov.anoT, "VALUE", "");
+    IupSetAttribute(varMov.anoT, "NAME", "MES");
+    IupSetAttribute(varMov.anoT, "SIZE", "30");
+    IupSetAttribute(varMov.anoT, "FONTSIZE", "12");
+
+    IupVar.vbox = IupVbox(IupVar.label, varMov.anoT, IupVar.btn, NULL);
+    IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
+    IupSetAttribute(IupVar.vbox, "GAP", "10");
+    IupSetAttribute(IupVar.vbox, "MARGIN", "60x60");
+    IupSetAttribute(IupVar.vbox, "GAP", "20");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Carteira Pessoal");
+
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    IupMainLoop();
+
+    IupClose();
+    return IUP_CLOSE;
+}
+int pegaMoradia(int argc, char **argv){
+    Ihandle *ih;
+    int pos = IupGetChildPos(IupGetParent(ih), ih);
+    if (pos == 0)
+        relatorioMoradia();
+    else
+        pedeMes(argc, argv);
+    return EXIT_SUCCESS;
+}
+
+int chamaMoradia(){
+    Ihandle *toggle, *toggle2, *teste;
+
+    toggle = IupToggle("Relatório Anual", NULL);
+    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "VALUE", "0");
+
+    IupSetCallback(toggle, "ACTION", (Icallback)pedeAno);
+
+
+    toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "NAME", "teste");
+
+    IupSetCallback(toggle2, "ACTION", (Icallback)pegaMoradia);
+
+    Ihandle *lbl2 = IupLabel("\n\n");
+    IupVar.label = IupLabel("\n\n\n");
+    Ihandle *lbl3 = IupLabel("\n\n");
+
+    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
+    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
+
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    IupMainLoop();
+
+    IUP_CLOSE;
+}
+int pegaEstudo(int argc, char **argv){
+    Ihandle *ih;
+    int pos = IupGetChildPos(IupGetParent(ih), ih);
+    if (pos == 0)
+        relatorioMoradia();
+    else
+        pedeMes(argc, argv);
+    return EXIT_SUCCESS;
+}
+
+int chamaEstudo(){
+
+    Ihandle *toggle, *toggle2, *teste;
+
+    toggle = IupToggle("Relatório Anual", NULL);
+    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "VALUE", "0");
+
+    IupSetCallback(toggle, "ACTION", (Icallback)pedeAno);
+
+
+    toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "NAME", "teste");
+
+    IupSetCallback(toggle2, "ACTION", (Icallback )pegaEstudo);
+
+    Ihandle *lbl2 = IupLabel("\n\n");
+    IupVar.label = IupLabel("\n\n\n");
+    Ihandle *lbl3 = IupLabel("\n\n");
+
+    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
+    //IupSetAttribute(IupVar.vbox, "SIZE", "100");
+    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
+
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    IupMainLoop();
+
+    IUP_CLOSE;
+}
+int pegaTrabalho(int argc, char **argv){
+    Ihandle *ih;
+    int pos = IupGetChildPos(IupGetParent(ih), ih);
+    if (pos == 0)
+        relatorioMoradia();
+    else
+        pedeMes(argc, argv);
+    return EXIT_SUCCESS;
+}
+
+int chamaTrabalho(){
+
+    Ihandle *toggle, *toggle2, *teste;
+
+    toggle = IupToggle("Relatório Anual", NULL);
+    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "VALUE", "0");
+
+    IupSetCallback(toggle, "ACTION", (Icallback)pedeAno);
+
+
+    toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "NAME", "teste");
+
+    IupSetCallback(toggle2, "ACTION", (Icallback )pegaTrabalho);
+
+    Ihandle *lbl2 = IupLabel("\n\n");
+    IupVar.label = IupLabel("\n\n\n");
+    Ihandle *lbl3 = IupLabel("\n\n");
+
+    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
+    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
+
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    IupMainLoop();
+
+    IUP_CLOSE;
+}
+int pegaOutros(int argc, char **argv){
+    Ihandle *ih;
+    int pos = IupGetChildPos(IupGetParent(ih), ih);
+    if (pos == 0)
+        relatorioMoradia();
+    else
+        pedeMes(argc, argv);
+    return EXIT_SUCCESS;
+}
+
+int chamaOutros(){
+
+    Ihandle *toggle, *toggle2, *teste;
+
+    toggle = IupToggle("Relatório Anual", NULL);
+    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "VALUE", "0");
+
+    IupSetCallback(toggle, "ACTION", (Icallback)pedeAno);
+
+
+    toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "NAME", "teste");
+
+    IupSetCallback(toggle2, "ACTION", (Icallback)pegaOutros);
+
+    Ihandle *lbl2 = IupLabel("\n\n");
+    IupVar.label = IupLabel("\n\n\n");
+    Ihandle *lbl3 = IupLabel("\n\n");
+
+    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
+    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
+
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    IupMainLoop();
+
+    IUP_CLOSE;
+}
+int pegaAlimentacao(int argc, char **argv){
+    Ihandle *ih;
+    int pos = IupGetChildPos(IupGetParent(ih), ih);
+    if (pos == 0)
+        relatorioMoradia();
+    else
+        pedeMes(argc, argv);
+    return EXIT_SUCCESS;
+}
+
+int chamaAlimentacao(){
+
+    Ihandle *toggle, *toggle2, *teste;
+
+    toggle = IupToggle("Relatório Anual", NULL);
+    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "VALUE", "0");
+
+    IupSetCallback(toggle, "ACTION", (Icallback) pedeAno);
+
+
+    toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "NAME", "teste");
+
+    IupSetCallback(toggle2, "ACTION", (Icallback) pegaAlimentacao);
+
+    Ihandle *lbl2 = IupLabel("\n\n");
+    IupVar.label = IupLabel("\n\n\n");
+    Ihandle *lbl3 = IupLabel("\n\n");
+
+    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
+    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
+
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    IupMainLoop();
+
+    IUP_CLOSE;
+}
+int pegaTransporte(int argc, char **argv){
+    Ihandle *ih;
+    int pos = IupGetChildPos(IupGetParent(ih), ih);
+    if (pos == 0)
+        relatorioMoradia();
+    else
+        pedeMes(argc, argv);
+    return EXIT_SUCCESS;
+}
+
+int chamaTrasporte(){
+
+    Ihandle *toggle, *toggle2, *teste;
+
+    toggle = IupToggle("Relatório Anual", NULL);
+    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "VALUE", "0");
+
+    IupSetCallback(toggle, "ACTION", (Icallback)pedeAno);
+
+
+    toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "FONTSIZE", "15");
+    IupSetAttribute(toggle, "NAME", "teste");
+
+    IupSetCallback(toggle2, "ACTION", (Icallback)pegaTransporte);
+
+    Ihandle *lbl2 = IupLabel("\n\n");
+    IupVar.label = IupLabel("\n\n\n");
+    Ihandle *lbl3 = IupLabel("\n\n");
+
+    IupVar.vbox = IupVbox(lbl2, toggle, IupVar.label, toggle2, lbl3, NULL);
+    IupSetAttribute(IupVar.vbox, "MARGIN", "30x30");
+    IupVar.dlg = IupDialog(IupVar.vbox);
+    IupSetAttribute(IupVar.dlg, "TITLE", "Escolha de relatório");
+
+    IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
+
+    IupMainLoop();
+
+    IUP_CLOSE;
+}
+
 int escreveArquivo(struct info dados, int op, int num){
     int verif;
     FILE *file;
@@ -1034,8 +959,6 @@ int escreveArquivo(struct info dados, int op, int num){
     else if(op == 6)
         strcat(caminho, "/outros.txt");
 
-    //printf("%s\n", caminho);
-
     verif = existeArq(caminho);
 
     if (verif == 1){
@@ -1049,7 +972,6 @@ int escreveArquivo(struct info dados, int op, int num){
             atualizaGeral(1, dados.valor);
         }
         fclose(file);
-        //printf("existe e deu certo\n");
     }
     else {
         file = fopen(caminho, "w");
@@ -1062,13 +984,7 @@ int escreveArquivo(struct info dados, int op, int num){
             atualizaGeral(1, dados.valor);
         }
         fclose(file);
-        //printf("n existe e deu certo\n");
     }
-
-    /*int a = IupMainLoopLevel();
-    printf("escreveArq: %d\n", a);
-    IupClose();
-    return EXIT_SUCCESS;*/
 }
 
 void limpaCampos(){
@@ -1100,9 +1016,6 @@ int pegaDados(Ihandle *self){
     dados.valor = IupGetDouble(pegaQt, "VALUE");
     dados.desc = IupGetAttribute(pegaDesc, "VALUE");
 
-    //printf("%s\n", dados.desc);
-    //printf("%llu\n", strlen(dados.desc));
-
     int categoria = IupGetInt(pegaOpcao, "VALUE");
 
     if(dados.dia < 1 || dados.dia > 31)
@@ -1124,13 +1037,7 @@ int pegaDados(Ihandle *self){
             escreveArquivo(dados, categoria, 1);
         aviso("Sucesso", "Operação realizada!");
         limpaCampos();
-        //IupClose();
     }
-
-    //int a = IupMainLoopLevel();
-    //printf("pegaDados: %d\n", a);
-
-    //return IupExitLoop();
 }
 int deposita(int argc, char **argv){
     deposita_saque = 0;
@@ -1161,7 +1068,6 @@ int deposita(int argc, char **argv){
     varMov.list = IupList(NULL);
 
     IupSetAttribute(varMov.list, "NAME", "lista");
-    //IupSetAttribute(list, "EXPAND", "HORIZONTAL");
     IupSetAttribute(varMov.list, "DROPDOWN", "YES");
     IupSetAttribute(varMov.list, "1", "Moradia");
     IupSetAttribute(varMov.list, "2", "Estudo");
@@ -1175,49 +1081,33 @@ int deposita(int argc, char **argv){
     varMov.movT = IupText(NULL);
     IupSetAttribute(varMov.movT, "SIZE", "50");
     IupSetAttribute(varMov.movT, "NAME", "quantia");
-    //IupSetAttribute(movT, "MASK", IUP_MASK_INT);
 
     varMov.diaT = IupText(NULL);
     IupSetAttribute(varMov.diaT, "SIZE", "50");
     IupSetAttribute(varMov.diaT, "NAME", "dia");
-    //IupSetAttribute(diaT, "MASK", IUP_MASK_INT);
 
     varMov.mesT = IupText(NULL);
     IupSetAttribute(varMov.mesT, "SIZE", "50");
     IupSetAttribute(varMov.mesT, "NAME", "mes");
-    //IupSetAttribute(mesT, "MASK", IUP_MASK_INT);
 
     varMov.anoT = IupText(NULL);
     IupSetAttribute(varMov.anoT, "SIZE", "50");
     IupSetAttribute(varMov.anoT, "NAME", "ano");
-    //IupSetAttribute(anoT, "MASK", IUP_MASK_INT);
 
     varMov.descricaoT = IupText(NULL);
     IupSetAttribute(varMov.descricaoT, "SIZE", "100");
     IupSetAttribute(varMov.descricaoT, "NAME", "descricao");
-
-    /*IupSetAttribute(varMov.diaT, "VALUE", "");
-    IupSetAttribute(varMov.mesT, "VALUE", "");
-    IupSetAttribute(varMov.anoT, "VALUE", "");
-    IupSetAttribute(varMov.movT, "VALUE", "");
-    IupSetAttribute(varMov.descricaoT, "VALUE", "");*/
-
 
     IupVar.hbox = IupHbox(
             varMov.diaL, varMov.diaT,
             varMov.mesL, varMov.mesT,
             varMov.anoL, varMov.anoT,
             NULL);
-    //IupSetAttribute(IupVar.hbox, "GAP", "15");
-    //IupSetAttribute(IupVar.hbox, "ALIGNMENT", "ACENTER");
 
     varMov.hbox2 = IupHbox(varMov.movL, varMov.movT, NULL);
-    //IupSetAttribute(hbox2, "MARGIN", "0x50");
-    //IupSetAttribute(hbox2, "GAP", "5");
     IupSetAttribute(varMov.hbox2, "ALIGNMENT", "ACENTER");
 
     varMov.hbox3 = IupHbox(varMov.tipo, varMov.list, NULL);
-    //IupSetAttribute(hbox3, "GAP", "5");
     IupSetAttribute(varMov.hbox3, "ALIGNMENT", "ACENTER");
 
     varMov.hbox4 = IupHbox(varMov.descricaoL, varMov.descricaoT, NULL);
@@ -1236,24 +1126,14 @@ int deposita(int argc, char **argv){
     IupSetAttribute(IupVar.vbox, "GAP", "5");
     IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
 
-    //IupSetAttribute(movL, "FLOATING", "YES");
-
     IupVar.dlg = IupDialog(IupVar.vbox);
     IupSetAttribute(IupVar.dlg, "TITLE", "Depositar");
-    //IupSetAttribute(IupVar.dlg, "IupExitLoop", "NO");
     IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     /*/////////////////////// ITENS /////////////////////////////*/
 
     IupMainLoop();
     IupExitLoop();
-    /*int a = IupMainLoopLevel();
-    printf("deposita: %d\n", a);
-    return  IUP_CLOSE;
-    IupDestroy(IupVar.dlg);
-    return EXIT_SUCCESS;
-    IUP_CLOSE;
-    return IUP_DEFAULT;*/
 }
 int saque(int argc, char **argv){
     deposita_saque = 1;
@@ -1284,7 +1164,6 @@ int saque(int argc, char **argv){
     varMov.list = IupList(NULL);
 
     IupSetAttribute(varMov.list, "NAME", "lista");
-    //IupSetAttribute(list, "EXPAND", "HORIZONTAL");
     IupSetAttribute(varMov.list, "DROPDOWN", "YES");
     IupSetAttribute(varMov.list, "1", "Moradia");
     IupSetAttribute(varMov.list, "2", "Estudo");
@@ -1298,22 +1177,18 @@ int saque(int argc, char **argv){
     varMov.movT = IupText(NULL);
     IupSetAttribute(varMov.movT, "SIZE", "50");
     IupSetAttribute(varMov.movT, "NAME", "quantia");
-    //IupSetAttribute(movT, "MASK", IUP_MASK_INT);
 
     varMov.diaT = IupText(NULL);
     IupSetAttribute(varMov.diaT, "SIZE", "50");
     IupSetAttribute(varMov.diaT, "NAME", "dia");
-    //IupSetAttribute(diaT, "MASK", IUP_MASK_INT);
 
     varMov.mesT = IupText(NULL);
     IupSetAttribute(varMov.mesT, "SIZE", "50");
     IupSetAttribute(varMov.mesT, "NAME", "mes");
-    //IupSetAttribute(mesT, "MASK", IUP_MASK_INT);
 
     varMov.anoT = IupText(NULL);
     IupSetAttribute(varMov.anoT, "SIZE", "50");
     IupSetAttribute(varMov.anoT, "NAME", "ano");
-    //IupSetAttribute(anoT, "MASK", IUP_MASK_INT);
 
     IupSetAttribute(varMov.diaT, "VALUE", "");
     IupSetAttribute(varMov.mesT, "VALUE", "");
@@ -1328,16 +1203,11 @@ int saque(int argc, char **argv){
             varMov.mesL, varMov.mesT,
             varMov.anoL, varMov.anoT,
             NULL);
-    //IupSetAttribute(IupVar.hbox, "GAP", "15");
-    //IupSetAttribute(IupVar.hbox, "ALIGNMENT", "ACENTER");
 
     varMov.hbox2 = IupHbox(varMov.movL, varMov.movT, NULL);
-    //IupSetAttribute(hbox2, "MARGIN", "0x50");
-    //IupSetAttribute(hbox2, "GAP", "5");
     IupSetAttribute(varMov.hbox2, "ALIGNMENT", "ACENTER");
 
     varMov.hbox3 = IupHbox(varMov.tipo, varMov.list, NULL);
-    //IupSetAttribute(hbox3, "GAP", "5");
     IupSetAttribute(varMov.hbox3, "ALIGNMENT", "ACENTER");
 
     varMov.hbox4 = IupHbox(varMov.descricaoL, varMov.descricaoT, NULL);
@@ -1356,27 +1226,19 @@ int saque(int argc, char **argv){
     IupSetAttribute(IupVar.vbox, "GAP", "5");
     IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
 
-    //IupSetAttribute(movL, "FLOATING", "YES");
-
     IupVar.dlg = IupDialog(IupVar.vbox);
     IupSetAttribute(IupVar.dlg, "TITLE", "Sacar");
-    //IupSetAttribute(IupVar.dlg, "IupExitLoop", "NO");
     IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     /*/////////////////////// ITENS /////////////////////////////*/
 
     IupMainLoop();
     IupExitLoop();
-    //IupClose();
-    //return IUP_CLOSE;
-    /*int a = IupMainLoopLevel();
-    printf("saca: %d\n", a);*/
 }
 
 void pegaNome(char nome[255]){
     int i;
 
-    //printf("%s\n",pessoaAtual);
     char caminho[maxCaminho];
     char dindin[255];
 
@@ -1388,7 +1250,6 @@ void pegaNome(char nome[255]){
     fgets(dindin, 255, (FILE*)arq);
     fclose(arq);
 
-    //printf("%s",dindin);
     saldo = atof(dindin);
 
     for(i=0; nomeAtual[i]!='\0'; i++){
@@ -1410,7 +1271,6 @@ int consultaSaldo(){
 }
 
 int TelaInicial(int argc, char **argv){
-    //printf("%s", pessoaAtual);
 
     Ihandle *transacoes_menu, *movimenta_menu;
     Ihandle *item_coloca, *item_retira;
@@ -1503,13 +1363,11 @@ int TelaInicial(int argc, char **argv){
 
     IupSetAttribute(IupVar.dlg, "TITLE", "Carteira Pessoal");
     IupSetAttributeHandle(IupVar.dlg, "MENU", menu);
-    //IupSetAttribute(IupVar.dlg, "BACKGROUND", "BACKGROUND");
 
     IupShowXY(IupVar.dlg, IUP_CENTER, IUP_CENTER);
 
     IupMainLoop();
 
-    //IupClose();
     return EXIT_SUCCESS;
 }
 
@@ -1518,12 +1376,9 @@ int analisaCadastro(Ihandle *entrada){
     Ihandle *valor = IupGetDialogChild(entrada, "VALOR");
     double v = IupGetDouble(valor, "VALUE");
     char *n = IupGetAttribute(nome, "VALUE");
-    //printf("%.2lf\n", v);
-    //printf("%s\n", n);
     char pessoa[50];
     strcpy(pessoa, pessoaAtual);
     strcat(pessoa, "/geral.txt");
-    //printf("%s\n", pessoa);
     FILE *arq = fopen(pessoa, "w");
 
     fprintf(arq,"%s\n",n);
@@ -1611,11 +1466,6 @@ int analisaCPF(Ihandle *inserecpf){
         char pasta[23] = "./Pessoas/";
         strcat(pasta, cpf);
         strcpy(pessoaAtual, pasta);
-        /*
-        printf("%s\n", pessoaAtual);
-        printf("%s", pasta);
-        printf("%lu", tam_cpf);
-        */
         if(mkdir(pasta)){
             globalVar = 1;
         }
@@ -1638,8 +1488,6 @@ void pedeCPF(int argc, char **argv){
 
     label2 = IupLabel("Olá, usuário!\n\n");
     IupSetAttribute(label2, "FONTSIZE", "15");
-
-    //fill = IupLabel("\n");
 
     IupVar.label = IupLabel("Digite o seu CPF (apenas números):\n\n");
     IupSetAttribute(IupVar.label, "FONTSIZE", "12");
@@ -1685,6 +1533,4 @@ int main(int argc, char **argv){
         CadastraUsuario(argc, argv);
         TelaInicial(argc, argv);
     }
-
-    //TelaInicial(argc, argv);
 }
