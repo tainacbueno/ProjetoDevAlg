@@ -612,10 +612,10 @@ int pegaAno(Ihandle *self){
 
     IupSetAttribute(varMov.anoT, "VALUE", "");
 
+    IUP_CLOSE;
     return EXIT_SUCCESS;
 }
 int pedeAno(int argc, char **argv){
-
     IupOpen(&argc, &argv);
 
     IupVar.label = IupLabel("Digite o ano:\n");
