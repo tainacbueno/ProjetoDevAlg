@@ -10,7 +10,6 @@
 
 int argc;
 char **argv;
-int globalVar = 0;
 int deposita_saque = 0;
 char pessoaAtual[23];
 double saldo;
@@ -651,7 +650,6 @@ int pedeMes(int num){
 
     IupMainLoop();
 
-    IupClose();
     return IUP_CLOSE;
 }
 int pegaAno(Ihandle *self){
@@ -723,7 +721,7 @@ int pegaMoradia(Ihandle *self, int v){
         pedeMes(1);
     }
 
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int chamaMoradia(){
     Ihandle *toggle, *toggle2, *teste;
@@ -767,7 +765,7 @@ int pegaEstudo(Ihandle *self, int v){
     else{
         pedeMes(2);
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int chamaEstudo(){
     Ihandle *toggle, *toggle2, *teste;
@@ -812,7 +810,7 @@ int pegaTrabalho(Ihandle *self, int v){
     else{
         pedeMes(3);
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int chamaTrabalho(){
     Ihandle *toggle, *toggle2, *teste;
@@ -856,7 +854,7 @@ int pegaOutros(Ihandle *self, int v){
     else{
         pedeMes(6);
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int chamaOutros(){
     Ihandle *toggle, *toggle2, *teste;
@@ -900,7 +898,7 @@ int pegaAlimentacao(Ihandle *self, int v){
     else{
         pedeMes(4);
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int chamaAlimentacao(){
     Ihandle *toggle, *toggle2, *teste;
@@ -944,7 +942,7 @@ int pegaTransporte(Ihandle *self, int v){
     else{
         pedeMes(5);
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int chamaTrasporte(){
     Ihandle *toggle, *toggle2, *teste;
@@ -1024,6 +1022,15 @@ int escreveArquivo(struct info dados, int op, int num){
     }
 }
 
+int spaceDesc(char desc[]){
+    int i;
+    for (i = 0; i < strlen(desc); ++i) {
+        if(desc[i] == ' '){
+            return 0;
+        }
+    }
+    return 1;
+}
 int pegaDados(Ihandle *self){
     //printf("%s\n", pessoaAtual);
     Ihandle *pegaDia, *pegaMes, *pegaAno, *pegaQt;
@@ -1052,6 +1059,8 @@ int pegaDados(Ihandle *self){
         aviso("Erro", "Mês inválido. Tente novamente.");
     else if(dados.ano < 0)
         aviso("Erro", "Ano inválido. Tente novamente.");
+    else if(spaceDesc(dados.desc) == 0)
+        aviso("Erro", "Descrição com espaço. Tente novamente.");
     else if(strlen(dados.desc) > MAX)
         aviso("Erro", "Descrição muito grande. Tente novamente.");
     else if(categoria == 0)
@@ -1297,7 +1306,7 @@ int consultaSaldo(){
     else if (saldo < 0)
         snprintf(guardaSaldo, sizeof guardaSaldo, "%s %.2lf%s", "Seu saldo atual é de R$", saldo, ".\n\n\tCompre fiado :P");
     else
-        snprintf(guardaSaldo, sizeof guardaSaldo, "%s %.2lf %c", "Seu saldo atual é de R$", saldo, '.');
+        snprintf(guardaSaldo, sizeof guardaSaldo, "%s %.2lf%c", "Seu saldo atual é de R$", saldo, '.');
 
     IupVar.label = IupLabel(guardaSaldo);
     IupSetAttribute(IupVar.label, "FONTSIZE", "15");
@@ -1449,19 +1458,22 @@ void CadastraUsuario(int argc, char **argv){
     btcadastra = IupButton("Cadastrar", NULL);
     IupSetAttribute(btcadastra, "SIZE", "80x20");
     IupSetCallback(btcadastra, "ACTION", (Icallback)analisaCadastro);
+
+    Ihandle *lbl2 = IupLabel("\n");
     IupVar.vbox = IupVbox(
             IupVar.label,
             labelNome,
             nome,
             labelValor,
             valor,
+            lbl2,
             btcadastra,
             NULL
     );
 
     IupSetAttribute(IupVar.vbox, "ALIGNMENT", "ACENTER");
     IupSetAttribute(IupVar.vbox, "GAP", "30");
-    IupSetAttribute(IupVar.vbox, "MARGIN", "150x150");
+    IupSetAttribute(IupVar.vbox, "MARGIN", "80x90");
 
     IupVar.dlg = IupDialog(IupVar.vbox);
     IupSetAttribute(IupVar.dlg, "TITLE", "Carteira Pessoal");
@@ -1500,12 +1512,14 @@ int analisaCPF(Ihandle *inserecpf){
         char pasta[23] = "./Pessoas/";
         strcat(pasta, cpf);
         strcpy(pessoaAtual, pasta);
-        if(mkdir(pasta)){
-            globalVar = 1;
+
+        struct stat sb;
+
+        if (stat(pasta, &sb) != 0 && !(S_ISDIR(sb.st_mode))) {
+            mkdir(pasta);
+            CadastraUsuario(argc, argv);
         }
-        else{
-            globalVar = 2;
-        }
+
         return IUP_CLOSE;
     }
     else{
@@ -1558,13 +1572,5 @@ int main(int argc, char **argv){
 
     pedeCPF(argc, argv);
 
-    // já cadastrado
-    if(globalVar==1){
-        TelaInicial(argc, argv);
-    }
-    //não cadastrado
-    else if(globalVar==2){
-        CadastraUsuario(argc, argv);
-        TelaInicial(argc, argv);
-    }
+    TelaInicial(argc, argv);
 }
