@@ -215,7 +215,6 @@ int relatorioMoradia(){
             }
             else{
                 if(strcmp(globalAno, dados.ano) == 0){
-                    //printf("MORADIAAAAA\n");
                     geral[posGeral] = dados;
                     posGeral++;
                 }
@@ -251,7 +250,6 @@ int relatorioEstudo(){
             }
             else{
                 if(strcmp(globalAno, dados.ano) == 0){
-                    //printf("ESTUDOOOOOOO\n");
                     geral[posGeral] = dados;
                     posGeral++;
                 }
@@ -287,12 +285,10 @@ int relatorioTrabalho(){
             }
             else{
                 if(strcmp(globalAno, dados.ano) == 0){
-                    //printf("MORADIAAAAA\n");
                     geral[posGeral] = dados;
                     posGeral++;
                 }
             }
-            //printf("%s %s %s %c %s\n", dados.dia, dados.mes, dados.ano, dados.tipo, dados.valor);
         }
         fclose(arq);
         if(strcmp(globalAno,"0") == 0)
@@ -324,7 +320,6 @@ int relatorioOutros(){
             }
             else{
                 if(strcmp(globalAno, dados.ano) == 0){
-                    //printf("MORADIAAAAA\n");
                     geral[posGeral] = dados;
                     posGeral++;
                 }
@@ -360,7 +355,6 @@ int relatorioAlimentacao(){
             }
             else{
                 if(strcmp(globalAno, dados.ano) == 0){
-                    printf("MORADIAAAAA\n");
                     geral[posGeral] = dados;
                     posGeral++;
                 }
@@ -375,7 +369,6 @@ int relatorioAlimentacao(){
     }
     return EXIT_SUCCESS;
 }
-
 int relatorioTransporte(){
     struct guardaChar guarda[1000];
     char caminho[maxCaminho];
@@ -397,7 +390,6 @@ int relatorioTransporte(){
             }
             else{
                 if(strcmp(globalAno, dados.ano) == 0){
-                    //printf("MORADIAAAAA\n");
                     geral[posGeral] = dados;
                     posGeral++;
                 }
@@ -412,6 +404,7 @@ int relatorioTransporte(){
     }
     return EXIT_SUCCESS;
 }
+
 int moradiaMes(char mes[], char ano[]){
     struct guardaChar guarda[1000];
     char caminho[maxCaminho];
@@ -428,7 +421,6 @@ int moradiaMes(char mes[], char ano[]){
         while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
         {
             if(strcmp(mes, dados.mes) == 0 && strcmp(ano, dados.ano) == 0){
-                //printf("MORADIAAAAA\n");
                 guarda[i] = dados;
                 i++;
             }
@@ -457,8 +449,7 @@ int estudoMes(char mes[], char ano[]){
         while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
         {
             if(strcmp(mes, dados.mes) == 0 && strcmp(ano, dados.ano) == 0){
-                //printf("MORADIAAAAA\n");
-                guarda[posGeral] = dados;
+                guarda[i] = dados;
                 i++;
             }
         }
@@ -486,8 +477,7 @@ int trabalhoMes(char mes[], char ano[]){
         while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
         {
             if(strcmp(mes, dados.mes) == 0 && strcmp(ano, dados.ano) == 0){
-                //printf("MORADIAAAAA\n");
-                guarda[posGeral] = dados;
+                guarda[i] = dados;
                 i++;
             }
         }
@@ -515,8 +505,7 @@ int outrosMes(char mes[], char ano[]){
         while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
         {
             if(strcmp(mes, dados.mes) == 0 && strcmp(ano, dados.ano) == 0){
-                //printf("MORADIAAAAA\n");
-                guarda[posGeral] = dados;
+                guarda[i] = dados;
                 i++;
             }
         }
@@ -544,8 +533,7 @@ int alimentacaoMes(char mes[], char ano[]){
         while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
         {
             if(strcmp(mes, dados.mes) == 0 && strcmp(ano, dados.ano) == 0){
-                //printf("MORADIAAAAA\n");
-                guarda[posGeral] = dados;
+                guarda[i] = dados;
                 i++;
             }
         }
@@ -563,7 +551,7 @@ int transporteMes(char mes[], char ano[]){
     int i = 0;
 
     strcpy(caminho, pessoaAtual);
-    strcat(caminho, "/estudo.txt");
+    strcat(caminho, "/transporte.txt");
 
     FILE *arq;
 
@@ -573,8 +561,7 @@ int transporteMes(char mes[], char ano[]){
         while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
         {
             if(strcmp(mes, dados.mes) == 0 && strcmp(ano, dados.ano) == 0){
-                //printf("MORADIAAAAA\n");
-                guarda[posGeral] = dados;
+                guarda[i] = dados;
                 i++;
             }
         }
@@ -1304,10 +1291,16 @@ void pegaNome(char nome[255]){
 
 int consultaSaldo(){
     char guardaSaldo[1020];
-    snprintf(guardaSaldo, sizeof guardaSaldo, "%s %.2lf", "Seu saldo atual é de R$", saldo);
+
+    if(saldo > 10000)
+        snprintf(guardaSaldo, sizeof guardaSaldo, "%s %.2lf%s", "\t\tSeu saldo atual é de R$", saldo, ".\n\nSugerimos guardar seu dinheiro no banco (ou debaixo do colchão) =)");
+    else if (saldo < 0)
+        snprintf(guardaSaldo, sizeof guardaSaldo, "%s %.2lf%s", "Seu saldo atual é de R$", saldo, ".\n\n\tCompre fiado :P");
+    else
+        snprintf(guardaSaldo, sizeof guardaSaldo, "%s %.2lf %c", "Seu saldo atual é de R$", saldo, '.');
 
     IupVar.label = IupLabel(guardaSaldo);
-    IupSetAttribute(IupVar.label, "FONTSIZE", "10");
+    IupSetAttribute(IupVar.label, "FONTSIZE", "15");
     IupMessage("Saldo", guardaSaldo);
 }
 
