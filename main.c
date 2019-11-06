@@ -769,20 +769,17 @@ int pegaEstudo(Ihandle *self, int v){
     return EXIT_SUCCESS;
 }
 int chamaEstudo(){
-
     Ihandle *toggle, *toggle2, *teste;
 
     toggle = IupToggle("Relatório Total", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "NAME", "total");
     IupSetAttribute(toggle, "FONTSIZE", "15");
     IupSetAttribute(toggle, "VALUE", "0");
-
     IupSetCallback(toggle, "ACTION", (Icallback)pegaEstudo);
-    
     toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "NAME", "mensal");
     IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle2, "NAME", "teste");
-
+    IupSetAttribute(toggle2, "VALUE", "0");
     IupSetCallback(toggle2, "ACTION", (Icallback)pegaEstudo);
 
     Ihandle *lbl2 = IupLabel("\n\n");
@@ -813,21 +810,17 @@ int pegaTrabalho(Ihandle *self, int v){
     return EXIT_SUCCESS;
 }
 int chamaTrabalho(){
-
     Ihandle *toggle, *toggle2, *teste;
 
     toggle = IupToggle("Relatório Total", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "NAME", "total");
     IupSetAttribute(toggle, "FONTSIZE", "15");
     IupSetAttribute(toggle, "VALUE", "0");
-
     IupSetCallback(toggle, "ACTION", (Icallback)pegaTrabalho);
-
-
     toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "NAME", "mensal");
     IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "NAME", "teste");
-
+    IupSetAttribute(toggle2, "VALUE", "0");
     IupSetCallback(toggle2, "ACTION", (Icallback)pegaTrabalho);
 
     Ihandle *lbl2 = IupLabel("\n\n");
@@ -857,21 +850,17 @@ int pegaOutros(Ihandle *self, int v){
     return EXIT_SUCCESS;
 }
 int chamaOutros(){
-
     Ihandle *toggle, *toggle2, *teste;
 
     toggle = IupToggle("Relatório Total", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "NAME", "total");
     IupSetAttribute(toggle, "FONTSIZE", "15");
     IupSetAttribute(toggle, "VALUE", "0");
-
     IupSetCallback(toggle, "ACTION", (Icallback)pegaOutros);
-
-
     toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "NAME", "mensal");
     IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "NAME", "teste");
-
+    IupSetAttribute(toggle2, "VALUE", "0");
     IupSetCallback(toggle2, "ACTION", (Icallback)pegaOutros);
 
     Ihandle *lbl2 = IupLabel("\n\n");
@@ -901,21 +890,17 @@ int pegaAlimentacao(Ihandle *self, int v){
     return EXIT_SUCCESS;
 }
 int chamaAlimentacao(){
-
     Ihandle *toggle, *toggle2, *teste;
 
     toggle = IupToggle("Relatório Total", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "NAME", "total");
     IupSetAttribute(toggle, "FONTSIZE", "15");
     IupSetAttribute(toggle, "VALUE", "0");
-
     IupSetCallback(toggle, "ACTION", (Icallback)pegaAlimentacao);
-
-
     toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "NAME", "mensal");
     IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle, "NAME", "teste");
-
+    IupSetAttribute(toggle2, "VALUE", "0");
     IupSetCallback(toggle2, "ACTION", (Icallback)pegaAlimentacao);
 
     Ihandle *lbl2 = IupLabel("\n\n");
@@ -945,20 +930,17 @@ int pegaTransporte(Ihandle *self, int v){
     return EXIT_SUCCESS;
 }
 int chamaTrasporte(){
-
     Ihandle *toggle, *toggle2, *teste;
 
     toggle = IupToggle("Relatório Total", NULL);
-    IupSetAttribute(toggle, "NAME", "toggle");
+    IupSetAttribute(toggle, "NAME", "total");
     IupSetAttribute(toggle, "FONTSIZE", "15");
-    //IupSetAttribute(toggle, "VALUE", "0");
-
+    IupSetAttribute(toggle, "VALUE", "0");
     IupSetCallback(toggle, "ACTION", (Icallback)pegaTransporte);
-
     toggle2 = IupToggle("Relatório Mensal", NULL);
+    IupSetAttribute(toggle2, "NAME", "mensal");
     IupSetAttribute(toggle2, "FONTSIZE", "15");
-    IupSetAttribute(toggle2, "NAME", "teste");
-
+    IupSetAttribute(toggle2, "VALUE", "0");
     IupSetCallback(toggle2, "ACTION", (Icallback)pegaTransporte);
 
     Ihandle *lbl2 = IupLabel("\n\n");
