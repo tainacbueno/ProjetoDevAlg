@@ -14,6 +14,7 @@ int deposita_saque = 0;
 char pessoaAtual[23];
 double saldo;
 char nomeAtual[255];
+int inicializa = 0;
 char *globalAno = "0";
 
 int globalMoradia = 0;
@@ -99,11 +100,9 @@ int existeArq(char caminho[]){
 int atualizaGeral(int num, double valor){
     if(num == 0) {
         saldo += valor;
-        //printf("%lf\n", saldo);
     }
     if(num == 1) {
         saldo -= valor;
-        //printf("%lf\n", saldo);
     }
 
     char caminho[maxCaminho];
@@ -429,8 +428,9 @@ int moradiaMes(char mes[], char ano[]){
     }
     else{
         aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
+        return EXIT_SUCCESS;
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int estudoMes(char mes[], char ano[]){
     struct guardaChar guarda[1000];
@@ -456,9 +456,10 @@ int estudoMes(char mes[], char ano[]){
         imprimeRelatorio(guarda, i, 2);
     }
     else{
-        aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
+        aviso("Erro", "Não há nada registrado em Estudo. Deposite ou saque e tente novamente.");
+        return EXIT_SUCCESS;
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int trabalhoMes(char mes[], char ano[]){
     struct guardaChar guarda[1000];
@@ -484,9 +485,10 @@ int trabalhoMes(char mes[], char ano[]){
         imprimeRelatorio(guarda, i, 2);
     }
     else{
-        aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
+        aviso("Erro", "Não há nada registrado em Trabalho. Deposite ou saque e tente novamente.");
+        return EXIT_SUCCESS;
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int outrosMes(char mes[], char ano[]){
     struct guardaChar guarda[1000];
@@ -512,11 +514,12 @@ int outrosMes(char mes[], char ano[]){
         imprimeRelatorio(guarda, i, 2);
     }
     else{
-        aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
+        aviso("Erro", "Não há nada registrado em Outros. Deposite ou saque e tente novamente.");
+        return EXIT_SUCCESS;
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
-int alimentacaoMes(char mes[], char ano[]){
+int alimentacaoMes(char mes[], char ano[]) {
     struct guardaChar guarda[1000];
     char caminho[maxCaminho];
     int i = 0;
@@ -526,23 +529,23 @@ int alimentacaoMes(char mes[], char ano[]){
 
     FILE *arq;
 
-    if(fopen(caminho, "r")){
+    if (fopen(caminho, "r")) {
         arq = fopen(caminho, "r");
 
-        while (fscanf(arq,"%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor, dados.desc) != EOF)
-        {
-            if(strcmp(mes, dados.mes) == 0 && strcmp(ano, dados.ano) == 0){
+        while (fscanf(arq, "%s %s %s %c %s %s\n", dados.dia, dados.mes, dados.ano, &(dados.tipo), dados.valor,
+                      dados.desc) != EOF) {
+            if (strcmp(mes, dados.mes) == 0 && strcmp(ano, dados.ano) == 0) {
                 guarda[i] = dados;
                 i++;
             }
         }
         fclose(arq);
         imprimeRelatorio(guarda, i, 2);
+    } else {
+        aviso("Erro", "Não há nada registrado em Alimentação. Deposite ou saque e tente novamente.");
+        return EXIT_SUCCESS;
     }
-    else{
-        aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
-    }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 int transporteMes(char mes[], char ano[]){
     struct guardaChar guarda[1000];
@@ -568,9 +571,10 @@ int transporteMes(char mes[], char ano[]){
         imprimeRelatorio(guarda, i, 2);
     }
     else{
-        aviso("Erro", "Não há nada registrado em Moradia. Deposite ou saque e tente novamente.");
+        aviso("Erro", "Não há nada registrado em Transporte. Deposite ou saque e tente novamente.");
+        return EXIT_SUCCESS;
     }
-    return EXIT_SUCCESS;
+    return IUP_CLOSE;
 }
 
 int pegaMes(Ihandle *self){
@@ -578,8 +582,9 @@ int pegaMes(Ihandle *self){
     char mes[2];
     strcpy(mes, IupGetAttribute(a, "VALUE"));
 
-    if(atoi(mes) < 1 || atoi(mes) > 12)
+    if(atoi(mes) < 1 || atoi(mes) > 12) {
         aviso("Erro", "Mês inválido. Tente novamente.");
+    }
     else{
         time_t mytime;
         mytime = time(NULL);
@@ -608,7 +613,8 @@ int pegaMes(Ihandle *self){
             outrosMes(mes, anoc);
         }
     }
-    return EXIT_SUCCESS;
+    limpaCampos();
+    return IUP_CLOSE;
 }
 int pedeMes(int num){
     if (num == 1)
@@ -668,9 +674,9 @@ int pegaAno(Ihandle *self){
         relatorioTransporte();
         relatorioOutros();
 
-        imprimeRelatorio(geral, posGeral, 1);
-
         IupSetAttribute(varMov.anoT, "VALUE", "");
+
+        imprimeRelatorio(geral, posGeral, 1);
     }
 
     IUP_CLOSE;
@@ -721,7 +727,7 @@ int pegaMoradia(Ihandle *self, int v){
         pedeMes(1);
     }
 
-    return IUP_CLOSE;
+    return EXIT_SUCCESS;
 }
 int chamaMoradia(){
     Ihandle *toggle, *toggle2, *teste;
@@ -765,7 +771,7 @@ int pegaEstudo(Ihandle *self, int v){
     else{
         pedeMes(2);
     }
-    return IUP_CLOSE;
+    return EXIT_SUCCESS;
 }
 int chamaEstudo(){
     Ihandle *toggle, *toggle2, *teste;
@@ -810,7 +816,7 @@ int pegaTrabalho(Ihandle *self, int v){
     else{
         pedeMes(3);
     }
-    return IUP_CLOSE;
+    return EXIT_SUCCESS;
 }
 int chamaTrabalho(){
     Ihandle *toggle, *toggle2, *teste;
@@ -854,7 +860,7 @@ int pegaOutros(Ihandle *self, int v){
     else{
         pedeMes(6);
     }
-    return IUP_CLOSE;
+    return EXIT_SUCCESS;
 }
 int chamaOutros(){
     Ihandle *toggle, *toggle2, *teste;
@@ -898,7 +904,7 @@ int pegaAlimentacao(Ihandle *self, int v){
     else{
         pedeMes(4);
     }
-    return IUP_CLOSE;
+    return EXIT_SUCCESS;
 }
 int chamaAlimentacao(){
     Ihandle *toggle, *toggle2, *teste;
@@ -942,7 +948,7 @@ int pegaTransporte(Ihandle *self, int v){
     else{
         pedeMes(5);
     }
-    return IUP_CLOSE;
+    return EXIT_SUCCESS;
 }
 int chamaTrasporte(){
     Ihandle *toggle, *toggle2, *teste;
@@ -1032,7 +1038,6 @@ int spaceDesc(char desc[]){
     return 1;
 }
 int pegaDados(Ihandle *self){
-    //printf("%s\n", pessoaAtual);
     Ihandle *pegaDia, *pegaMes, *pegaAno, *pegaQt;
     Ihandle *pegaOpcao, *pegaDesc;
 
@@ -1059,6 +1064,8 @@ int pegaDados(Ihandle *self){
         aviso("Erro", "Mês inválido. Tente novamente.");
     else if(dados.ano < 0)
         aviso("Erro", "Ano inválido. Tente novamente.");
+    else if(dados.valor <= 0)
+        aviso("Erro", "Valor inválido. Tente novamente.");
     else if(spaceDesc(dados.desc) == 0)
         aviso("Erro", "Descrição com espaço. Tente novamente.");
     else if(strlen(dados.desc) > MAX)
@@ -1314,7 +1321,6 @@ int consultaSaldo(){
 }
 
 int TelaInicial(int argc, char **argv){
-
     Ihandle *transacoes_menu, *movimenta_menu;
     Ihandle *item_coloca, *item_retira;
     Ihandle *item_moradia, *item_estudo, *item_tranporte, *item_alimentcao, *item_trabalho, *item_outros, *item_anual;
@@ -1506,6 +1512,7 @@ int analisaCPF(Ihandle *inserecpf){
     int tam = contaDigitos(value);
 
     if (tam == 11){
+        inicializa = 1;
         char cpf[12];
         sprintf(cpf, "%.llu", value);
 
@@ -1519,7 +1526,6 @@ int analisaCPF(Ihandle *inserecpf){
             mkdir(pasta);
             CadastraUsuario(argc, argv);
         }
-
         return IUP_CLOSE;
     }
     else{
@@ -1536,6 +1542,7 @@ void pedeCPF(int argc, char **argv){
 
     label2 = IupLabel("Olá, usuário!\n\n");
     IupSetAttribute(label2, "FONTSIZE", "15");
+    IupSetAttribute(label2, "FGCOLOR", "255 0 255");
 
     IupVar.label = IupLabel("Digite o seu CPF (apenas números):\n\n");
     IupSetAttribute(IupVar.label, "FONTSIZE", "12");
@@ -1572,5 +1579,6 @@ int main(int argc, char **argv){
 
     pedeCPF(argc, argv);
 
-    TelaInicial(argc, argv);
+    if(inicializa == 1)
+        TelaInicial(argc, argv);
 }
