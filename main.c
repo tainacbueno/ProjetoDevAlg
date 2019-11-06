@@ -81,6 +81,15 @@ void aviso(char titulo[], char msgm[]){
     IupDestroy(IupVar.dlg);
 }
 
+void limpaCampos(){
+    IupSetAttribute(varMov.diaT, "VALUE", "");
+    IupSetAttribute(varMov.mesT, "VALUE", "");
+    IupSetAttribute(varMov.anoT, "VALUE", "");
+    IupSetAttribute(varMov.descricaoT, "VALUE", "");
+    IupSetAttribute(varMov.list, "VALUE", "0");
+    IupSetAttribute(varMov.movT, "VALUE", "");
+}
+
 int existeArq(char caminho[]){
     if(!fopen(caminho, "r"))
         //n existe
@@ -108,7 +117,6 @@ int atualizaGeral(int num, double valor){
 
     return EXIT_SUCCESS;
 }
-
 int ehMaior(struct guardaChar a, struct guardaChar b){
     if(atoi(a.ano) == atoi(b.ano)){
         if(atoi(a.mes) == atoi(b.mes))
@@ -122,6 +130,7 @@ void troca(struct guardaChar *a, struct guardaChar *b){
     *a = *b;
     *b = temp;
 }
+
 void ordena(struct guardaChar *guarda, int n){
     int i, j;
 
@@ -185,7 +194,6 @@ void imprimeRelatorio(struct guardaChar guarda[1000], int i, int relat){
     IupMainLoop();
     IupExitLoop();
 }
-
 int relatorioMoradia(){
     struct guardaChar guarda[1000];
     char caminho[maxCaminho];
@@ -367,6 +375,7 @@ int relatorioAlimentacao(){
     }
     return EXIT_SUCCESS;
 }
+
 int relatorioTransporte(){
     struct guardaChar guarda[1000];
     char caminho[maxCaminho];
@@ -403,7 +412,6 @@ int relatorioTransporte(){
     }
     return EXIT_SUCCESS;
 }
-
 int moradiaMes(char mes[], char ano[]){
     struct guardaChar guarda[1000];
     char caminho[maxCaminho];
@@ -613,10 +621,7 @@ int pegaMes(Ihandle *self){
             globalOutros = 0;
             outrosMes(mes, anoc);
         }
-
-        IupSetAttribute(a, "VALUE", "");
     }
-
     return EXIT_SUCCESS;
 }
 int pedeMes(int num){
@@ -667,7 +672,7 @@ int pegaAno(Ihandle *self){
     globalAno = IupGetAttribute(a, "VALUE");
     posGeral = 0;
 
-    if(isdigit(globalAno) == 0) {
+    if(isdigit(*globalAno) == 0) {
         aviso("Erro", "Ano inválido. Tente novamente.");
     }
     else {
@@ -719,6 +724,10 @@ int pedeAno(){
 }
 
 int pegaMoradia(Ihandle *self, int v){
+    Ihandle *total = IupGetDialogChild(self, "total");
+    Ihandle *mensal = IupGetDialogChild(self, "mensal");
+    IupSetAttribute(total, "VALUE", "OFF");
+    IupSetAttribute(mensal, "VALUE", "OFF");
     char *a = IupGetAttribute(self, "NAME");
     if (strcmp(a, "total") == 0){
         relatorioMoradia();
@@ -726,6 +735,7 @@ int pegaMoradia(Ihandle *self, int v){
     else{
         pedeMes(1);
     }
+
     return EXIT_SUCCESS;
 }
 int chamaMoradia(){
@@ -755,10 +765,14 @@ int chamaMoradia(){
 
     IupMainLoop();
 
-    IUP_CLOSE;
+    return IUP_CLOSE;
 }
 
 int pegaEstudo(Ihandle *self, int v){
+    Ihandle *total = IupGetDialogChild(self, "total");
+    Ihandle *mensal = IupGetDialogChild(self, "mensal");
+    IupSetAttribute(total, "VALUE", "OFF");
+    IupSetAttribute(mensal, "VALUE", "OFF");
     char *a = IupGetAttribute(self, "NAME");
     if (strcmp(a, "total") == 0){
         relatorioEstudo();
@@ -796,10 +810,14 @@ int chamaEstudo(){
 
     IupMainLoop();
 
-    IUP_CLOSE;
+    return IUP_CLOSE;
 }
 
 int pegaTrabalho(Ihandle *self, int v){
+    Ihandle *total = IupGetDialogChild(self, "total");
+    Ihandle *mensal = IupGetDialogChild(self, "mensal");
+    IupSetAttribute(total, "VALUE", "OFF");
+    IupSetAttribute(mensal, "VALUE", "OFF");
     char *a = IupGetAttribute(self, "NAME");
     if (strcmp(a, "total") == 0){
         relatorioTrabalho();
@@ -836,10 +854,14 @@ int chamaTrabalho(){
 
     IupMainLoop();
 
-    IUP_CLOSE;
+    return IUP_CLOSE;
 }
 
 int pegaOutros(Ihandle *self, int v){
+    Ihandle *total = IupGetDialogChild(self, "total");
+    Ihandle *mensal = IupGetDialogChild(self, "mensal");
+    IupSetAttribute(total, "VALUE", "OFF");
+    IupSetAttribute(mensal, "VALUE", "OFF");
     char *a = IupGetAttribute(self, "NAME");
     if (strcmp(a, "total") == 0){
         relatorioOutros();
@@ -876,10 +898,14 @@ int chamaOutros(){
 
     IupMainLoop();
 
-    IUP_CLOSE;
+    return IUP_CLOSE;
 }
 
 int pegaAlimentacao(Ihandle *self, int v){
+    Ihandle *total = IupGetDialogChild(self, "total");
+    Ihandle *mensal = IupGetDialogChild(self, "mensal");
+    IupSetAttribute(total, "VALUE", "OFF");
+    IupSetAttribute(mensal, "VALUE", "OFF");
     char *a = IupGetAttribute(self, "NAME");
     if (strcmp(a, "total") == 0){
         relatorioAlimentacao();
@@ -916,10 +942,14 @@ int chamaAlimentacao(){
 
     IupMainLoop();
 
-    IUP_CLOSE;
+    return IUP_CLOSE;
 }
 
 int pegaTransporte(Ihandle *self, int v){
+    Ihandle *total = IupGetDialogChild(self, "total");
+    Ihandle *mensal = IupGetDialogChild(self, "mensal");
+    IupSetAttribute(total, "VALUE", "OFF");
+    IupSetAttribute(mensal, "VALUE", "OFF");
     char *a = IupGetAttribute(self, "NAME");
     if (strcmp(a, "total") == 0){
         relatorioTransporte();
@@ -956,7 +986,7 @@ int chamaTrasporte(){
 
     IupMainLoop();
 
-    IUP_CLOSE;
+    return IUP_CLOSE;
 }
 
 int escreveArquivo(struct info dados, int op, int num){
@@ -1007,15 +1037,6 @@ int escreveArquivo(struct info dados, int op, int num){
     }
 }
 
-void limpaCampos(){
-    IupSetAttribute(varMov.diaT, "VALUE", "");
-    IupSetAttribute(varMov.mesT, "VALUE", "");
-    IupSetAttribute(varMov.anoT, "VALUE", "");
-    IupSetAttribute(varMov.descricaoT, "VALUE", "");
-    IupSetAttribute(varMov.list, "VALUE", "0");
-    IupSetAttribute(varMov.movT, "VALUE", "");
-}
-
 int pegaDados(Ihandle *self){
     //printf("%s\n", pessoaAtual);
     Ihandle *pegaDia, *pegaMes, *pegaAno, *pegaQt;
@@ -1059,7 +1080,7 @@ int pegaDados(Ihandle *self){
         limpaCampos();
     }
 }
-int deposita(int argc, char **argv){
+int deposita(){
     deposita_saque = 0;
     IupOpen(&argc, &argv);
 
@@ -1155,7 +1176,7 @@ int deposita(int argc, char **argv){
     IupMainLoop();
     IupExitLoop();
 }
-int saque(int argc, char **argv){
+int saque(){
     deposita_saque = 1;
     IupOpen(&argc, &argv);
 
